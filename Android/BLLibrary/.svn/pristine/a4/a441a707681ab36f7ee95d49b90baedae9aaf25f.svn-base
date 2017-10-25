@@ -1,0 +1,517 @@
+package com.kwaijian.facility.DataCenter.Home.DataObj;
+
+import android.text.TextUtils;
+
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Order extends HTData {
+
+    public final static int STATUS_UNDOME = 1;
+    public final static int STATUS_DOME = 0;
+
+    String id;
+    String applyCompanyId;        //getServiceList、getServiceDetail时用于存储apply_company_id
+    String applyLinkmanId;        //同上
+    String finalCompanyId;        //同上
+    String finalLinkmanId;        //同上
+    String facilityId;            //同上
+    Company applyCompany;        //getServiceDetail时用于存储apply_company
+    Company finalCompany;        //同上
+    Contacts applyLinkman;        //同上
+    Contacts finalLinkman;        //同上
+    Facility facility;            //同上
+    String faultDesc;
+    String[] faultImage;
+    String faultSymptom;
+    String faultReason;
+    String faultProcess;
+    String faultCompletion;
+    String remark;
+    String record;
+    String applyTime;
+    String contactTime;
+    String confirmTime;
+    String departTime;
+    String arriveTime;
+    String leaveTime;
+    String serviceTime;
+    String orderNumber;
+    int status = STATUS_UNDOME;
+    int serviceStatus = STATUS_UNDOME;
+    List<OrderSpare> spareparts;
+
+    public Order() {
+
+    }
+
+    @Override
+    public void setData(JSONObject json) {
+        super.setData(json);
+        spareparts = new ArrayList<OrderSpare>();
+        try {
+            id = stringByKey("id");
+            applyCompanyId = stringByKey("apply_company_id");
+            applyLinkmanId = stringByKey("apply_linkman_id");
+            finalCompanyId = stringByKey("final_company_id");
+            finalLinkmanId = stringByKey("final_linkman_id");
+            facilityId = stringByKey("facility_id");
+            faultDesc = stringByKey("fault_desc");
+            if (stringByKey("fault_image") != null) {
+                faultImage = stringByKey("fault_image").split(",");
+            }
+            faultSymptom = stringByKey("fault_symptom");
+            faultReason = stringByKey("fault_reason");
+            faultProcess = stringByKey("fault_process");
+            faultCompletion = stringByKey("fault_completion");
+            remark = stringByKey("s_remark");
+            record = stringByKey("s_record");
+            serviceStatus = integerByKey("service_status", 0);
+            applyTime = stringByKey("apply_time");
+            contactTime = stringByKey("contact_time");
+            confirmTime = stringByKey("confirm_time");
+            departTime = stringByKey("depart_time");
+            arriveTime = stringByKey("arrive_time");
+            leaveTime = stringByKey("leave_time");
+            serviceTime = stringByKey("service_time");
+            orderNumber = stringByKey("s_orderNumber");
+            if (stringByKey("apply_company") != null && !stringByKey("apply_company").equals("null")) {        //居然返回了字符串“null”
+                applyCompany = new Company();
+                applyCompany.setData(new JSONObject(stringByKey("apply_company")));
+            }
+            if (stringByKey("apply_linkman") != null && !stringByKey("apply_linkman").equals("null")) {
+                applyLinkman = new Contacts();
+                applyLinkman.setData(new JSONObject(stringByKey("apply_linkman")));
+            }
+            if (stringByKey("final_company") != null && !stringByKey("final_company").equals("null")) {
+                finalCompany = new Company();
+                finalCompany.setData(new JSONObject(stringByKey("final_company")));
+            }
+            if (stringByKey("final_linkman") != null && !stringByKey("final_linkman").equals("null")) {
+                finalLinkman = new Contacts();
+                finalLinkman.setData(new JSONObject(stringByKey("final_linkman")));
+            }
+            if (stringByKey("facility") != null && !stringByKey("facility").equals("null")) {
+                facility = new Facility();
+                facility.setData(new JSONObject(stringByKey("facility")));
+            }
+            if (stringByKey("spareparts") != null && !stringByKey("spareparts").equals("null")) {
+                JSONArray sparepartsArray = new JSONArray(stringByKey("spareparts"));
+                for (int i = 0; i < sparepartsArray.length(); i++) {
+                    JSONObject sparepartJson = sparepartsArray.getJSONObject(i);
+                    OrderSpare sparepart = new OrderSpare();
+                    sparepart.setData(sparepartJson);
+                    spareparts.add(sparepart);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public JSONObject orderToJson() {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("service_id", id)
+                    .put("apply_company_id", applyCompanyId)
+                    .put("apply_linkman_id", applyLinkmanId)
+                    .put("final_company_id", finalCompanyId)
+                    .put("final_linkman_id", finalLinkmanId)
+                    .put("facility_id", facilityId)
+                    .put("fault_desc", faultDesc)
+                    .put("fault_symptom", faultSymptom)
+                    .put("fault_reason", faultReason)
+                    .put("fault_process", faultProcess)
+                    .put("fault_completion", faultCompletion)
+                    .put("depart_time", departTime)
+                    .put("arrive_time", arriveTime)
+                    .put("leave_time", leaveTime)
+                    .put("service_time", serviceTime)
+                    .put("s_record", record);
+            if (faultImage != null) {
+                JSONArray jsonArray = new JSONArray();
+                for (int i = 0; i < faultImage.length; i++) {
+                    jsonArray.put(faultImage[i]);
+                }
+                json.put("fault_image", jsonArray);
+            }
+//			if(applyCompany!=null){
+//				json.put("apply_company", applyCompany.companyToJson());
+//			}
+//			if(applyLinkman!=null){
+//				json.put("apply_linkman", applyLinkman.contactsToJson());
+//			}
+//			if(finalCompany!=null){
+//				json.put("final_company", finalCompany.companyToJson());
+//			}
+//			if(finalLinkman!=null){
+//				json.put("final_linkman", finalLinkman.contactsToJson());
+//			}
+//			if(facility!=null){
+//				json.put("facility", facility.facilityToJson());
+//			}
+            JSONArray sparepartsArray = new JSONArray();
+            for (int i = 0; i < spareparts.size(); i++) {
+                sparepartsArray.put(spareparts.get(i).sparepartsToJson());
+            }
+            json.put("spareparts", sparepartsArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public int getServiceStatus() {
+        return serviceStatus;
+    }
+
+    public boolean isFinish() {
+        return getServiceStatus() == 0;
+    }
+
+    public String getApplyTime() {
+        return applyTime;
+    }
+
+    public String getContactTime() {
+        return contactTime;
+    }
+
+    public String getConfirmTime() {
+        return confirmTime;
+    }
+
+    public String getFaultReason() {
+        return faultReason;
+    }
+
+    public String getOrderNumber() {
+        return orderNumber;
+    }
+
+    public Company getApplyCompany() {
+        return applyCompany;
+    }
+
+    public Contacts getApplyLinkman() {
+        return applyLinkman;
+    }
+
+    public Facility getFacility() {
+        return facility;
+    }
+
+    public void setFacility(Facility facility) {
+        this.facility = facility;
+    }
+
+    public Company getFinalCompany() {
+        return finalCompany;
+    }
+
+    public Contacts getFinalLinkman() {
+        return finalLinkman;
+    }
+
+    public String getFaultSymptom() {
+        return faultSymptom;
+    }
+
+    public String getFaultDesc() {
+        return faultDesc;
+    }
+
+    public String getFaultProcess() {
+        return faultProcess;
+    }
+
+    public String getFaultCompletion() {
+        return faultCompletion;
+    }
+
+    public String getDepartTime() {
+        return departTime;
+    }
+
+    public void setDepartTime(String departTime) {
+        this.departTime = departTime;
+    }
+
+    public String getArriveTime() {
+        return arriveTime;
+    }
+
+    public void setArriveTime(String arriveTime) {
+        this.arriveTime = arriveTime;
+    }
+
+    public String getLeaveTime() {
+        return leaveTime;
+    }
+
+    public void setLeaveTime(String leaveTime) {
+        this.leaveTime = leaveTime;
+    }
+
+    public String getServiceTime() {
+        return serviceTime;
+    }
+
+    public float getServiceHour() {
+        try {
+            return Float.valueOf(serviceTime);
+        } catch (Exception e) {
+
+        }
+        return 0;
+    }
+
+    public void setServiceTime(String serviceTime) {
+        this.serviceTime = serviceTime;
+    }
+
+    public String getRecord() {
+        return record;
+    }
+
+    public void setRecord(String record) {
+        this.record = record;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+
+    public static class OrderSpare extends HTData {
+        String serviceId;
+        String oldId;
+        String oldName;
+        String oldModel;
+        String oldON;
+        String oldSN;
+        String newModel;
+        String newON;
+        String newSN;
+
+
+        @Override
+        public void setData(JSONObject json) {
+            super.setData(json);
+            oldId = stringByKey("old_spareparts_id");
+            oldName = stringByKey("old_spareparts_name");
+            oldModel = stringByKey("old_spareparts_model");
+//			oldManufacturer = stringByKey("old_spareparts_manufacturer");
+            oldON = stringByKey("old_spareparts_ON");
+            oldSN = stringByKey("old_spareparts_SN");
+//			if (stringByKey("old_spareparts_image") != null) {
+//				oldImageId = stringByKey("old_spareparts_image").split(",");
+//			}
+//			oldRemark = stringByKey("old_spareparts_remark");
+
+//			newId = stringByKey("new_spareparts_id");
+//			newName = stringByKey("new_spareparts_name");
+            newModel = stringByKey("new_spareparts_model");
+//			newManufacturer = stringByKey("new_spareparts_manufacturer");
+            newON = stringByKey("new_spareparts_ON");
+            newSN = stringByKey("new_spareparts_SN");
+//			if (stringByKey("new_spareparts_image") != null) {
+//				newImageId = getValue("new_spareparts_image").split(",");
+//			}
+//			newRemark = getValue("new_spareparts_remark");
+        }
+
+        public JSONObject sparepartsToJson() {
+            JSONObject json = new JSONObject();
+            try {
+                json.put("old_spareparts_id", oldId)
+                        .put("service_id", serviceId)
+//				.put("old_spareparts_name", oldName)
+                        .put("old_spareparts_model", oldModel)
+//				.put("old_spareparts_manufacturer", oldManufacturer)
+                        .put("old_spareparts_ON", oldON)
+                        .put("old_spareparts_SN", oldSN)
+//						.put("old_spareparts_remark", oldRemark).put("new_spareparts_id", newId)
+//						.put("new_spareparts_name", newName)
+                        .put("new_spareparts_model", newModel)
+//						.put("new_spareparts_manufacturer", newManufacturer)
+                        .put("new_spareparts_ON", newON)
+                        .put("new_spareparts_SN", newSN);
+//				.put("new_spareparts_remark", newRemark);
+
+//				if (oldImageId != null) {
+//					JSONArray jsonArray = new JSONArray();
+//					for (int i = 0; i < oldImageId.length; i++) {
+//						jsonArray.put(oldImageId[i]);
+//					}
+//					json.put("old_spareparts_image", jsonArray);
+//				}
+//				if (newImageId != null) {
+//					JSONArray jsonArray = new JSONArray();
+//					for (int i = 0; i < newImageId.length; i++) {
+//						jsonArray.put(newImageId[i]);
+//					}
+//					json.put("new_spareparts_image", jsonArray);
+//				}
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return json;
+        }
+
+        public void setServiceId(String serviceId) {
+            this.serviceId = serviceId;
+        }
+
+        public void setOldId(String oldId) {
+            this.oldId = oldId;
+        }
+
+        public void setOldON(String oldON) {
+            this.oldON = oldON;
+        }
+
+        public void setNewON(String newON) {
+            this.newON = newON;
+        }
+
+        public String getOldId() {
+            return oldId;
+        }
+
+        public String getOldName() {
+            return oldName;
+        }
+
+        public String getOldON() {
+            return oldON;
+        }
+
+        public String getNewON() {
+            return newON;
+        }
+
+        public String getOldModel() {
+            return oldModel;
+        }
+
+        public String getOldSN() {
+            return oldSN;
+        }
+
+        public String getNewModel() {
+            return newModel;
+        }
+
+        public String getNewSN() {
+            return newSN;
+        }
+
+        public void setOldModel(String oldModel) {
+            this.oldModel = oldModel;
+        }
+
+        public void setOldSN(String oldSN) {
+            this.oldSN = oldSN;
+        }
+
+        public void setNewModel(String newModel) {
+            this.newModel = newModel;
+        }
+
+        public void setNewSN(String newSN) {
+            this.newSN = newSN;
+        }
+
+    }
+
+    public void addOrderSpare(OrderSpare spare) {
+        spareparts.add(spare);
+    }
+
+    public void removeOrderSpare(OrderSpare spare) {
+        spareparts.remove(spare);
+    }
+
+    public void setFaultDesc(String faultDesc) {
+        this.faultDesc = faultDesc;
+    }
+
+    public void setFaultSymptom(String faultSymptom) {
+        this.faultSymptom = faultSymptom;
+    }
+
+    public void setFaultReason(String faultReason) {
+        this.faultReason = faultReason;
+    }
+
+    public void setFaultProcess(String faultProcess) {
+        this.faultProcess = faultProcess;
+    }
+
+    public void setFaultCompletion(String faultCompletion) {
+        this.faultCompletion = faultCompletion;
+    }
+
+    public void setFaultImage(String[] faultImage) {
+        this.faultImage = faultImage;
+    }
+
+    public String[] getFaultImage() {
+        return faultImage;
+    }
+
+    public List<String> getFaultImgeList() {
+        List<String> list = new ArrayList<>();
+        try {
+            for (String id : faultImage) {
+                if (!TextUtils.isEmpty(id)) {
+                    list.add(id);
+                }
+            }
+        } catch (Exception e) {
+
+        }
+        return list;
+    }
+
+    public void setApplyCompanyId(String applyCompanyId) {
+        this.applyCompanyId = applyCompanyId;
+    }
+
+    public void setApplyLinkmanId(String applyLinkmanId) {
+        this.applyLinkmanId = applyLinkmanId;
+    }
+
+    public void setFinalCompanyId(String finalCompanyId) {
+        this.finalCompanyId = finalCompanyId;
+    }
+
+    public void setFinalLinkmanId(String finalLinkmanId) {
+        this.finalLinkmanId = finalLinkmanId;
+    }
+
+    public void setFacilityId(String facilityId) {
+        this.facilityId = facilityId;
+    }
+
+    public List<OrderSpare> getSpareparts() {
+        return spareparts;
+    }
+
+    public void setSpareparts(List<OrderSpare> spareparts) {
+        this.spareparts = spareparts;
+    }
+
+
+}

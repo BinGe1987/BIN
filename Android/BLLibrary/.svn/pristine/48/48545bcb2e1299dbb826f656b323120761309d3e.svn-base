@@ -1,0 +1,114 @@
+package com.kwaijian.facility.UI.BaseClass.Views;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.View;
+
+
+import com.kwaijian.facility.UI.BaseClass.Presenter.HTPresenter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by BinGe on 2017/9/18.
+ * HTFragment
+ */
+public abstract class HTFragment extends Fragment {
+
+    protected View mView; // Fragment View 引用
+
+    /**
+     * HTPresenter列表
+     */
+    private List<HTPresenter> mPresenters = new ArrayList<>();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    /**
+     * 添加Presenter
+     * @param presenter
+     * @return
+     */
+    public boolean addPresenter(HTPresenter presenter) {
+        mPresenters.add(presenter);
+        return false;
+    }
+
+    /**
+     * 删除Presenter
+     * @param presenter
+     * @return
+     */
+    public boolean removePresenter(HTPresenter presenter) {
+        presenter.onDestroy();
+        mPresenters.remove(presenter);
+        return true;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        for (HTPresenter p : mPresenters) {
+            p.onStart();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        for (HTPresenter p : mPresenters) {
+            p.onResume();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        for (HTPresenter p : mPresenters) {
+            p.onPause();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        for (HTPresenter p : mPresenters) {
+            p.onStop();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        for (HTPresenter p : mPresenters) {
+            p.onDestroy();
+        }
+        mPresenters.clear();
+    }
+
+    /**
+     * 当fragment显示在最前端时
+     * @param focus
+     */
+    public abstract void onFragmentFocus(boolean focus);
+
+    /**
+     * VideoFragment 获取焦点事件
+     * @param isVisibleToUser
+     */
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            onFragmentFocus(true);
+        } else {
+            onFragmentFocus(false);
+        }
+    }
+}

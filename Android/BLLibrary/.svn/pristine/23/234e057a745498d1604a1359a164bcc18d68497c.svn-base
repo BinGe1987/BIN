@@ -1,0 +1,22 @@
+package com.kwaijian.facility.UI.Home.Views;
+
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.widget.FrameLayout;
+
+/**
+ * Created by BinGe on 2017/10/18.
+ */
+
+public class TabView extends FrameLayout {
+
+    public TabView(@NonNull Context context) {
+        super(context);
+    }
+
+    public TabView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+}

@@ -1,0 +1,57 @@
+package com.kwaijian.facility.DataCenter.Home;
+
+
+import com.kwaijian.facility.BaseClasses.Objects.HTJSONObject;
+import com.kwaijian.facility.Constants.EventConst;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTDataHandler;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTDataParser;
+import com.kwaijian.facility.DataCenter.Config.Operations;
+import com.kwaijian.facility.DataCenter.Home.Facility.FacilityPerformer;
+import com.kwaijian.facility.DataCenter.Home.Repair.RepairPerformer;
+import com.kwaijian.facility.DataCenter.Home.Server.ServerPerformer;
+import com.kwaijian.facility.EventCenter.EventBus;
+
+/**
+ * Created by BinGe on 2017/9/15.
+ * 首页数据管理器
+ */
+
+public class HomeHandler extends HTDataHandler implements HTDataParser<HomeData> {
+
+    private HomeData data = new HomeData();
+
+    public HomeHandler() {
+        bindOperation(Operations.Home.RefreshServerList, new ServerPerformer());
+        bindOperation(Operations.Home.RefreshRepairList, new RepairPerformer());
+        bindOperation(Operations.Home.RefreshFacilityList, new FacilityPerformer());
+        bindDataParser(Operations.Home.RefreshServerList, this);
+        bindDataParser(Operations.Home.RefreshRepairList, this);
+        bindDataParser(Operations.Home.RefreshFacilityList, this);
+    }
+
+    @Override
+    public HTData getData() {
+        return data;
+    }
+
+    @Override
+    public HomeData parse(String operation, HTData data) {
+        switch (operation) {
+            case Operations.Home.RefreshServerList:
+                this.data.setServerData(data);
+                EventBus.getInstance().postEvent(EventConst.Home.OnServerListRefreshed, this.data);
+                break;
+            case Operations.Home.RefreshRepairList:
+                this.data.setRepairData(data);
+                EventBus.getInstance().postEvent(EventConst.Home.OnRepairListRefreshed, this.data);
+                break;
+            case Operations.Home.RefreshFacilityList:
+                this.data.setFacilityData(data);
+                EventBus.getInstance().postEvent(EventConst.Home.OnFacilityListRefreshed, this.data);
+                break;
+        }
+        return this.data;
+    }
+
+}

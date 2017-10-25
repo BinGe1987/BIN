@@ -1,0 +1,207 @@
+package com.kwaijian.facility.UI.BaseClass.Views.Browser;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageView;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+
+import com.kwaijian.facility.UI.BaseClass.Drawables.HTDrawable;
+import com.kwaijian.facility.Utils.Log.LogUtils;
+
+/**
+ * Created by BinGe on 2017/9/18.
+ * 用于图片的预览，可以放大缩小，双指操作等
+ */
+
+public class HTImageView extends AppCompatImageView {
+
+    /**
+     * 当前屏幕的点数
+     */
+    private int count = 0;
+    /**
+     * 保存当前两点间的距离，用于与新的距离比较来判断是放大还是缩小
+     */
+    private double dist;
+
+    /**
+     * 图片的缩放比例
+     */
+    private double scale = 1, lastScale = 1;
+
+    /**
+     * 两指的中点坐标
+     */
+    private float[] center = new float[2];
+
+    /**
+     * 单指时移动的开始坐标
+     */
+    private float[] start = new float[2];
+
+    /**
+     * 单指时移动的当前坐标
+     */
+    private float[] current = new float[2];
+
+    /**
+     * 当前的touch事件类型，
+     * 0：正常状态
+     * 1：单指状态，表示用户正在拖动图片
+     * 2：双指状态，表示用户正在缩放图片
+     */
+    private int touchStatus = 0;
+
+    public HTImageView(Context context) {
+        super(context);
+    }
+
+    public HTImageView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public void setData(final HTImageData data) {
+        if (data.image instanceof Bitmap) {
+            setImageDrawable(new HTDrawable((Bitmap) data.image));
+        } else if (data.image instanceof String) {
+            if (data.image.toString().startsWith("file:///android_asset")) {
+                setImageDrawable(new HTDrawable(getContext().getAssets(), data.image.toString()));
+            } else {
+                setImageDrawable(new HTDrawable(data.image.toString()));
+            }
+        }
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                count = 1;
+                dist = 0;
+                touchStatus = 0;
+                break;
+            //当两根手指很近的时候，这个方法会一起在触发
+            case MotionEvent.ACTION_POINTER_DOWN:
+                count += 1;
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                count -= 1;
+                break;
+            case MotionEvent.ACTION_UP:
+                count = 0;
+                this.lastScale = this.scale;
+//                touchStatus = 0;
+                break;
+        }
+        //用户使用了两个手指
+        if (count >= 2) {
+            //如果用户用了两个手指，后面的touch事件将由我自己处理
+            getParent().requestDisallowInterceptTouchEvent(true);
+
+            if (dist == 0) {
+                dist = spacing(event);
+            }
+
+            double newDist = spacing(event);
+            double d = newDist - dist;
+            scale = this.lastScale + d / (float) getWidth() * 1.5f;
+            scale = scale < 1 ? 1 : scale;
+            scale = scale > 2.5 ? 2.5 : scale;
+
+            if (scale == 1) {
+                center[0] = event.getX(0) / 2 + event.getX(1) / 2;
+                center[1] = event.getY(0) / 2 + event.getY(1) / 2;
+            }
+            touchStatus = 2;
+        } else if (count == 1 && touchStatus != 2 || action == MotionEvent.ACTION_UP) {
+            touchStatus = 1;
+            move(event);
+        } else {
+            touchStatus = 0;
+        }
+
+        boolean touchable =
+//                action == MotionEvent.ACTION_DOWN ||
+                count >= 2 || scale > 1;
+        if (touchable) {
+            getParent().requestDisallowInterceptTouchEvent(true);
+        }
+        LogUtils.d("touchable : " + touchable);
+        invalidate();
+//        return super.onTouchEvent(event);
+        return true;
+    }
+
+    private void move(MotionEvent event) {
+        int action = event.getAction() & MotionEvent.ACTION_MASK;
+        float x = event.getX();
+        float y = event.getY();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                LogUtils.d("move down");
+                start[0] = x;
+                start[1] = y;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                LogUtils.d("move move");
+            case MotionEvent.ACTION_UP:
+//                LogUtils.d("move up");
+                current[0] += (x - start[0]);
+                current[1] += (y - start[1]);
+//                current[0] = event.getX();
+//                current[1] = event.getY();
+                start[0] = x;
+                start[1] = y;
+                break;
+        }
+    }
+
+    /**
+     * 计算第一和第二个点之前的距离
+     *
+     * @param event
+     * @return
+     */
+    private double spacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return Math.sqrt(x * x + y * y);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        Drawable d = getDrawable();
+        if (d != null) {
+
+            if (touchStatus == 1) {
+                canvas.save();
+                LogUtils.d(this + "->Y:" + current[1]);
+                if (d.getBounds().height() > canvas.getHeight()) {
+                    if (current[1] > 0) {
+                        current[1] = 0;
+                    } else if ((current[1] + d.getBounds().height()) < canvas.getHeight()) {
+                        current[1] = canvas.getHeight() - d.getBounds().height();
+                    }
+                    canvas.translate(0, current[1]);
+                }
+            }
+//
+//        LogUtils.d("onDraw scale: " + scale + ", center point x:" + center[0] + ", y:" + center[1]);
+//        int save1 = canvas.save();
+//        canvas.scale((float) scale, (float) scale, center[0], center[1]);
+
+            d.draw(canvas);
+
+//        canvas.restoreToCount(save1);
+
+            if (touchStatus == 1) {
+                canvas.restore();
+            }
+        }
+    }
+
+}

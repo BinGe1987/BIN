@@ -1,0 +1,116 @@
+package com.kwaijian.facility.UI.BaseClass.Widget;
+
+import android.content.Context;
+import android.graphics.Color;
+import android.support.annotation.Nullable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.kwaijian.facility.BaseClasses.OS.SystemInfo;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.R;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+/**
+ * Created by binge on 2017/10/22.
+ */
+
+public class TimePickView extends LinearLayout {
+
+    private TextView nameText;
+
+    private TextView editText;
+
+    public TimePickView(Context context) {
+        this(context, null);
+    }
+
+    public TimePickView(Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+
+        setOrientation(LinearLayout.HORIZONTAL);
+
+        initViews();
+
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickTime();
+            }
+        });
+    }
+
+    private void initViews() {
+        int paddingHorizontal = (int) (SystemInfo.Screen.scale * 10);
+        int paddingVertical = (int) (SystemInfo.Screen.scale * 10);
+        LinearLayout.LayoutParams nameParams = new LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 6);
+        nameText = new TextView(getContext());
+        nameText.setText("时间");
+        nameText.setGravity(Gravity.LEFT);
+        nameText.setTextColor(Color.BLACK);
+        nameText.setSingleLine();
+        nameText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        nameText.setPadding(paddingHorizontal, paddingVertical, paddingHorizontal, paddingVertical);
+        addView(nameText, nameParams);
+
+        LinearLayout.LayoutParams editParams = new LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 2);
+        editText = new TextView(getContext());
+        editText.setText("2017-01-01 00:00");
+        editText.setGravity(Gravity.RIGHT);
+        editText.setTextColor(getResources().getColor(R.color.color_1));
+        editText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        editText.setPadding(0, paddingVertical, paddingHorizontal, paddingVertical);
+        editText.setSingleLine();
+        editText.setBackgroundColor(Color.BLACK & 0x00ffffff);
+        addView(editText, editParams);
+    }
+
+    public void setName(String name) {
+        nameText.setText(name);
+    }
+
+    public void setText(String text) {
+        editText.setText(text);
+    }
+
+    public void setContent(String name, String time) {
+        setName(name);
+        setText(time);
+    }
+
+    public void pickTime() {
+        Utils.pickDateTime(getContext(), new Utils.DateTimeCallback() {
+            @Override
+            public void onDataTimeCallback(String date) {
+                setText(date);
+            }
+        });
+    }
+
+    public long getTime() {
+        SimpleDateFormat formatter = new SimpleDateFormat(Utils.getTimeFormat());
+        try {
+            Date date = formatter.parse(editText.getText().toString());
+            return date.getTime() / 1000;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public String getTimeString() {
+        return editText.getText().toString();
+    }
+
+}

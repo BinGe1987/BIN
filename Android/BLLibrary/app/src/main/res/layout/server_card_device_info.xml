@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
+    android:background="@color/color_w"
+    android:elevation="1dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/color_1"
+        android:elevation="1dp"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:text="设备信息"
+        android:textColor="@color/color_w"
+        android:textSize="16sp" />
+
+    <include layout="@layout/line" />
+
+    <LinearLayout
+        android:id="@+id/facility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/order_detail_item_padding"
+            android:text="设备名称"
+            android:textColor="@color/order_detail_name_color"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/device_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:drawablePadding="10dp"
+            android:drawableRight="@mipmap/icon_right"
+            android:gravity="center_vertical|right"
+            android:padding="@dimen/order_detail_item_padding"
+            android:textColor="@drawable/text_selector"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+</LinearLayout>

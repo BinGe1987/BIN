@@ -1,0 +1,51 @@
+package com.kwaijian.facility.Application;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.Config.Operations;
+import com.kwaijian.facility.DataCenter.DataCenter;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.UI.BaseClass.Activity.HTActivity;
+import com.kwaijian.facility.Utils.Log.LogUtils;
+
+import java.util.HashMap;
+
+/**
+ * Created by BinGe on 2017/9/19.
+ */
+
+public class TestActivity extends HTActivity {
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test);
+
+        DataCenter.get().perform(Operations.Login.LoginWithPwd, new HashMap<String, String>() {{
+            put("account", "cwenhui");
+            put("password", "123456");
+        }}, new DataCenter.Callback() {
+            @Override
+            public void onCallback(String operation, HTData data) {
+                LogUtils.d("operation:" + operation);
+                DataCenter.get().perform(Operations.Home.Server.RefreshServerList, null, new DataCenter.Callback() {
+                    @Override
+                    public void onCallback(String operation, HTData data) {
+                        LogUtils.d("operation:" + operation);
+                    }
+                });
+            }
+        });
+
+//        DataCenter.get().perform(Operations.Login.LoginWithAuto, null, new DataCenter.Callback() {
+//            @Override
+//            public void onCallback(String operation, HTData data) {
+//
+//            }
+//        });
+
+
+    }
+}

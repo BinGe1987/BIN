@@ -1,0 +1,96 @@
+package com.kwaijian.facility.Application;
+
+import android.app.Application;
+import android.content.Context;
+import android.os.Build;
+import android.os.StrictMode;
+import android.webkit.CookieSyncManager;
+
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.kwaijian.facility.BaseClasses.OS.HTHandler;
+import com.kwaijian.facility.BaseClasses.OS.SystemInfo;
+import com.kwaijian.facility.OldSource.tools.Density;
+import com.kwaijian.facility.OldSource.tools.PicassoImageLoader;
+import com.kwaijian.facility.OldSource.tools.Saver;
+
+import cn.finalteam.galleryfinal.CoreConfig;
+import cn.finalteam.galleryfinal.FunctionConfig;
+import cn.finalteam.galleryfinal.GalleryFinal;
+import cn.finalteam.galleryfinal.ImageLoader;
+import cn.finalteam.galleryfinal.ThemeConfig;
+
+public class App extends Application {
+
+    private static App sApp;
+    private static Context sAppContext;
+    private static HTHandler sHandler;
+
+    /**
+     * 直接返回application的context，其它地方可以直接获取使用
+     *
+     * @return
+     */
+    public static Context getContext() {
+        return sAppContext;
+    }
+
+    /**
+     * 直接返回application的Handler，其它地方可以直接获取使用
+     *
+     * @return
+     */
+    public static HTHandler getHandler() {
+        return sHandler;
+    }
+
+    /**
+     * 直接返回application，其它地方可以直接获取使用
+     *
+     * @return
+     */
+    public static App getApp() {
+        return sApp;
+    }
+
+	@Override
+	public void onCreate() {
+        super.onCreate();
+
+        sApp = this;
+        sAppContext = getApplicationContext();
+        sHandler = new HTHandler("App");
+
+        Fresco.initialize(this);
+
+        //初始化系统信息
+        SystemInfo.initialize(this);
+
+		Density.init(this);
+		Saver.initSaver(this);
+
+        ThemeConfig theme = new ThemeConfig.Builder()
+                .build();
+        //配置功能
+        FunctionConfig functionConfig = new FunctionConfig.Builder()
+                .setEnableCamera(true)
+                .setEnableEdit(true)
+                .setEnableCrop(true)
+                .setEnableRotate(true)
+                .setCropSquare(true)
+                .setEnablePreview(true)
+        .build();
+
+        ImageLoader imageloader = new PicassoImageLoader();
+        CoreConfig coreConfig = new CoreConfig.Builder(this, imageloader, theme)
+//                .setDebug(BuildConfig.DEBUG)
+                .setFunctionConfig(functionConfig)
+                .setNoAnimcation(true)
+        .build();
+        GalleryFinal.init(coreConfig);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+            StrictMode.setVmPolicy(builder.build());
+        }
+	}
+}

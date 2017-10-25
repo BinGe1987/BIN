@@ -1,0 +1,18 @@
+<resources>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="order_detail_title_padding">8dp</dimen>
+    <dimen name="order_detail_item_padding">8dp</dimen>
+    <dimen name="odder_detail_title_size">16sp</dimen>
+    <dimen name="order_detail_value_size">14sp</dimen>
+    <dimen name="order_detail_input_size">14sp</dimen>
+    <dimen name="order_detail_company_name">18sp</dimen>
+    <dimen name="order_item_desc_size">16sp</dimen>
+    <dimen name="order_item_desc_height">40dp</dimen>
+    <dimen name="order_item_margin">10dp</dimen>
+
+    <dimen name="activity_main_tab_height">3dp</dimen>
+	<dimen name="page_facility_item_padding">10dp</dimen>    
+</resources>

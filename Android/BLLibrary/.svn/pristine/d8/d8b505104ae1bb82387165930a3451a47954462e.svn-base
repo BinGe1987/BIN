@@ -1,0 +1,224 @@
+package com.kwaijian.facility.UI.Home.Old;
+
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.OldSource.pageview.FacilityListPage;
+import com.kwaijian.facility.OldSource.pageview.OrderListPage;
+import com.kwaijian.facility.OldSource.pageview.Page;
+import com.kwaijian.facility.OldSource.pageview.RepairListPage;
+import com.kwaijian.facility.UI.BaseClass.Activity.HTActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends HTActivity implements OnClickListener {
+
+    private OrderListPage mPage1;
+    private RepairListPage mPage2;
+    private Page mPage3;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        checkPermissions();
+        setContentView(R.layout.activity_main);
+        initView();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        ((ViewPager) findViewById(R.id.viewpager_activity_main)).setCurrentItem(0);
+        int current = ((ViewPager) findViewById(R.id.viewpager_activity_main)).getCurrentItem();
+        switch (current) {
+            case 0:
+                mPage1.onResume();
+                break;
+            case 1:
+                mPage2.onResume();
+                break;
+            case 2:
+                mPage3.onResume();
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            FacilityListPage page = (FacilityListPage) ((ViewPager) findViewById(R.id.viewpager_activity_main)).getChildAt(1);
+            if (page != null) {
+                page.getFacilities();
+            }
+        }
+    }
+
+    public void initView() {
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager_activity_main);
+        findViewById(R.id.order_service).setOnClickListener(this);
+        findViewById(R.id.order_repair).setOnClickListener(this);
+        findViewById(R.id.devices).setOnClickListener(this);
+
+        final List<View> mViews = new ArrayList<View>();
+        mPage1 = new OrderListPage(this);
+        mViews.add(mPage1);
+        mPage2 = new RepairListPage(this);
+        mViews.add(mPage2);
+        mPage3 = new FacilityListPage(this);
+        mViews.add(mPage3);
+        MyPagerAdapter pagerAdapter = new MyPagerAdapter(mViews);
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setOnPageChangeListener(new MyPagerListener(viewPager));
+    }
+
+    private void resetTabBackground(Resources resources) {
+        TextView order = (TextView) findViewById(R.id.order_service);
+        TextView repair = (TextView) findViewById(R.id.order_repair);
+        TextView device = (TextView) findViewById(R.id.devices);
+
+        Drawable icon = resources.getDrawable(R.mipmap.tab1_u);
+        order.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        order.setTextColor(getResources().getColor(R.color.color_tab_unselected));
+
+        icon = resources.getDrawable(R.mipmap.tab4_u);
+        repair.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        repair.setTextColor(getResources().getColor(R.color.color_tab_unselected));
+
+        icon = resources.getDrawable(R.mipmap.tab3_u);
+        device.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+        device.setTextColor(getResources().getColor(R.color.color_tab_unselected));
+    }
+
+    @Override
+    public void onClick(View v) {
+        Resources resources = getResources();
+        switch (v.getId()) {
+            case R.id.order_service:
+                mPage1.onResume();
+                resetTabBackground(resources);
+                ((ViewPager) findViewById(R.id.viewpager_activity_main)).setCurrentItem(0, false);
+                setOrderDown(resources);
+                break;
+
+            case R.id.order_repair:
+                mPage2.onResume();
+                resetTabBackground(resources);
+                ((ViewPager) findViewById(R.id.viewpager_activity_main)).setCurrentItem(1, false);
+                setRepairDown(resources);
+                break;
+
+            case R.id.devices:
+                mPage3.onResume();
+                resetTabBackground(resources);
+                ((ViewPager) findViewById(R.id.viewpager_activity_main)).setCurrentItem(2, false);
+                setDeviceDown(resources);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void setDeviceDown(Resources resources) {
+        Drawable icon;
+        TextView device = (TextView) findViewById(R.id.devices);
+        device.setTextColor(resources.getColor(R.color.background_statusbar));
+        icon = resources.getDrawable(/*R.drawable.icon_facility_d*/R.mipmap.tab3_d);
+        device.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+    }
+
+    private void setRepairDown(Resources resources) {
+        Drawable icon;
+        TextView device = (TextView) findViewById(R.id.order_repair);
+        device.setTextColor(resources.getColor(R.color.background_statusbar));
+        icon = resources.getDrawable(/*R.drawable.icon_facility_d*/R.mipmap.tab4_d);
+        device.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+    }
+
+    private void setOrderDown(Resources resources) {
+        Drawable icon;
+        TextView order = (TextView) findViewById(R.id.order_service);
+        order.setTextColor(resources.getColor(R.color.background_statusbar));
+        icon = resources.getDrawable(R.mipmap.tab1_d);
+        order.setCompoundDrawablesWithIntrinsicBounds(null, icon, null, null);
+    }
+
+    class MyPagerAdapter extends PagerAdapter {
+        List<View> mViews = new ArrayList<>();
+
+        public MyPagerAdapter(List<View> mViews) {
+            this.mViews = mViews;
+        }
+
+        @Override
+        public boolean isViewFromObject(View arg0, Object arg1) {
+            return arg0 == arg1;
+        }
+
+        @Override
+        public int getCount() {
+            return mViews.size();
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView(mViews.get(position));
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            View view = mViews.get(position);
+            container.addView(view);
+            return view;
+        }
+
+    }
+
+    class MyPagerListener implements OnPageChangeListener {
+        ViewPager pager;
+
+        public MyPagerListener(ViewPager pager) {
+            this.pager = pager;
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int arg0) {
+        }
+
+        @Override
+        public void onPageScrolled(int arg0, float arg1, int arg2) {
+        }
+
+        @Override
+        public void onPageSelected(int arg0) {
+            int currentItem = pager.getCurrentItem();
+            resetTabBackground(getResources());
+            switch (currentItem) {
+                case 0:
+                    setOrderDown(getResources());
+                    break;
+                case 1:
+                    setRepairDown(getResources());
+                    mPage2.update();
+                    break;
+                case 2:
+                    setDeviceDown(getResources());
+                    break;
+            }
+
+        }
+
+    }
+}

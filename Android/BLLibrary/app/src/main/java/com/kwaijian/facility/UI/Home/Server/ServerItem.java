@@ -1,0 +1,161 @@
+package com.kwaijian.facility.UI.Home.Server;
+
+import android.content.Context;
+import android.content.Intent;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.Config.Operations;
+import com.kwaijian.facility.DataCenter.DataCenter;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.UI.BaseClass.Activity.ImageBrowserActivity;
+import com.kwaijian.facility.UI.BaseClass.Views.HTProgress;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Order;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.UI.Home.Server.Detail.ServerDetailActivity;
+import com.kwaijian.facility.Utils.UI.ActivityUtils;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ServerItem extends FrameLayout implements OnClickListener {
+
+    public ServerItem(Context context) {
+        this(context, null);
+    }
+
+    public ServerItem(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        LayoutInflater.from(context).inflate(R.layout.item_order, this);
+        setOnClickListener(this);
+    }
+
+    public void setOrder(Order order) {
+        setTag(order);
+        TextView time = (TextView) findViewById(R.id.time);
+        TextView device = (TextView) findViewById(R.id.info);
+        TextView desc = (TextView) findViewById(R.id.desc);
+        time.setText(Utils.formatTime(order.getApplyTime()));
+        device.setText(order.getOrderNumber());
+        desc.setText(order.getFaultDesc());
+        TextView statusView = (TextView) findViewById(R.id.status);
+        if (order.isFinish()) {
+            statusView.setText("已完成");
+        } else {
+            statusView.setText("未完成");
+        }
+
+        TextView finish = (TextView) findViewById(R.id.finish);
+        if (order.isFinish()) {
+            finish.setVisibility(View.GONE);
+        }
+        finish.setOnClickListener(this);
+
+        List<String> images = order.getFaultImgeList();
+        ViewGroup vg = (ViewGroup) findViewById(R.id.image_group);
+        for (int i = 0; i < 3; i++) {
+            ImageView view = (ImageView) vg.getChildAt(i);
+            if (images.size() > i) {
+                view.setVisibility(View.VISIBLE);
+                String url = HttpConst.Request.IMAGE_PATH + images.get(i);
+                view.setTag(url);
+                Picasso.with(getContext()).load(url).centerCrop().resize(300, 300).into(view);
+                view.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Order order = (Order) ServerItem.this.getTag();
+                        List<String> list = order.getFaultImgeList();
+                        ArrayList<String> urls = new ArrayList<>();
+                        for (String id : list) {
+                            String url = HttpConst.Request.IMAGE_PATH + id;
+                            urls.add(url);
+                        }
+                        int index = urls.indexOf(v.getTag());
+                        ImageBrowserActivity.open(v.getContext(), urls, index);
+                    }
+                });
+            } else {
+                view.setVisibility(View.INVISIBLE);
+                view.setOnClickListener(null);
+
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.finish:
+                HTProgress.create(v.getContext(), "finish")
+                        .setType(HTProgress.TYPE.CONFIRM)
+                        .setContent("确认完成订单？")
+                        .setSureButton("确定", new HTProgress.HTProgressCallback() {
+                            @Override
+                            public void callback() {
+                                ToastUtils.show(getContext(), "开发中");
+                                DataCenter.get().perform(Operations.Home.Server.FinishServer,
+                                        "{\"service_id\",\"" + ((Order) getTag()).getId() + "\"}",
+                                        new DataCenter.Callback() {
+                                            @Override
+                                            public void onCallback(String operation, HTData data) {
+
+                                            }
+                                        });
+                            }
+                        }).show();
+                break;
+            default:
+                Order order = (Order) v.getTag();
+//                Bundle b = new Bundle();
+//                b.putString(OrderDetailPage.ORDER_ID, order.getId());
+//                if (order.getServiceStatus() == 0) {
+//                    PageActivity.openPage(getContext(), OrderHistoryDetailPage.class, b);
+//                } else if (order.getServiceStatus() == 1) {
+//                    PageActivity.openPageForResult(getContext(), OrderDetailPage.class, b, 1);
+//                }
+                Intent intent = new Intent(getContext(), ServerDetailActivity.class);
+                intent.putExtra("id", order.getId());
+                ActivityUtils.pushActivity(getContext(), intent);
+
+                break;
+        }
+
+    }
+
+//    @Override
+//    public void callback(final String data) {
+//        LogUtils.d(data);
+//        mHandler.post(new Runnable() {
+//            public void run() {
+//                try {
+//                    JSONObject json = new JSONObject(data);
+//                    if (json.get("errCode").equals(0)) {
+//                        if (httpFlag.equals(HttpConst.Request.FINISH_SERVICE) ||
+//                                httpFlag.equals(HttpConst.Request.CANCEL_SERVICE)) {
+////							getServiceList();
+//                        } else if (httpFlag.equals(HttpConst.Request.GET_SERVICE_LIST)) {
+//                            Data.getInstence().getOrders(json.getJSONArray("list_service"));
+//                        }
+//                    } else if (json.get("errCode").equals(10)) {
+//                        ToastUtils.show(getContext(), json.get("errDesc").toString());
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//    }
+
+
+}

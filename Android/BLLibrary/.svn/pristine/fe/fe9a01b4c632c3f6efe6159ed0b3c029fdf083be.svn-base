@@ -1,0 +1,42 @@
+package com.kwaijian.facility.DataCenter.Home;
+
+
+import com.kwaijian.facility.BaseClasses.Objects.HTJSONObject;
+import com.kwaijian.facility.Constants.EventConst;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTDataHandler;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTDataParser;
+import com.kwaijian.facility.DataCenter.Config.Operations;
+import com.kwaijian.facility.DataCenter.Home.Server.ServerPerformer;
+import com.kwaijian.facility.EventCenter.EventBus;
+
+/**
+ * Created by BinGe on 2017/9/15.
+ * 首页数据管理器
+ */
+
+public class HomeHandler extends HTDataHandler implements HTDataParser<HomeData> {
+
+    private HomeData data = new HomeData();
+
+    public HomeHandler() {
+        bindOperation(Operations.Home.RefreshServerList, new ServerPerformer());
+        bindDataParser(Operations.Home.RefreshServerList, this);
+    }
+
+    @Override
+    public HTData getData() {
+        return data;
+    }
+
+    @Override
+    public HomeData parse(String operation, HTData data) {
+        //服务列表数据
+        if (operation.equals(Operations.Home.RefreshServerList)) {
+            this.data.setServerData(data);
+            EventBus.getInstance().postEvent(EventConst.Home.OnServerListRefreshed, this.data);
+        }
+        return this.data;
+    }
+
+}

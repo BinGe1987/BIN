@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <LinearLayout
+        android:id="@+id/pick_image_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            android:id="@+id/open_camera"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector"
+            android:clickable="true"
+            android:gravity="center"
+            android:padding="13dp"
+            android:text="拍照"
+            android:textColor="@color/contact_text_detail_color"
+            android:textSize="18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/color_line" />
+
+        <TextView
+            android:id="@+id/choose_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector"
+            android:clickable="true"
+            android:gravity="center"
+            android:padding="13dp"
+            android:text="从图库中选择"
+            android:textColor="@color/contact_text_detail_color"
+            android:textSize="18sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/color_line" />
+
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector"
+            android:clickable="true"
+            android:gravity="center"
+            android:padding="13dp"
+            android:text="取消"
+            android:textColor="@color/contact_text_detail_color"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+</LinearLayout>

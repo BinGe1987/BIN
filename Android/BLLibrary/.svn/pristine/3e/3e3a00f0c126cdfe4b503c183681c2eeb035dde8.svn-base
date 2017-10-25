@@ -1,0 +1,534 @@
+package com.kwaijian.facility.UI.Home.Server.Detail;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.PersistableBundle;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.kwaijian.facility.DataCenter.Home.DataObj.Company;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Contacts;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Facility;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Order;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.OldSource.pageview.CompanySparepartsListPage;
+import com.kwaijian.facility.OldSource.pageview.FacilityListPage;
+import com.kwaijian.facility.OldSource.tools.LoadImageManager;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.OldSource.widget.AddImageDrawable;
+import com.kwaijian.facility.OldSource.widget.CustomDialog;
+import com.kwaijian.facility.OldSource.widget.PickImageUploadDialog;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.UI.BaseClass.Activity.HTActivity;
+import com.kwaijian.facility.UI.Home.Old.PageActivity;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by BinGe on 2017/10/20.
+ */
+
+public class ServerDetailActivity extends HTActivity implements View.OnClickListener, RequestCallback{
+
+    public static final String ORDER_ID = "orderId";
+    public static final int ADD_SPAREPARTS = 12;
+    public static final int UPDATE_SPAREPARTS = 13;
+    public static final int GET_SPAREPARTS_LIST = 14;
+    public static final int GET_FACILITY_LIST = 15;
+    public static final String COMPANY = "company";
+    public static final String CONTACT_ID = "contactId";
+    public static final String CONTACT_NAME = "contactName";
+    public static final String CONTACT_TEL = "contactTel";
+    public static final String FACILITY_ID = "facilityId";
+    public static final String FACILITY_NAME = "facilityName";
+    public static final String SPAREPARTS_ID = "sparepartsId";
+    public static final String SPAREPARTS_MODEL = "sparepartsModel";
+    public static final String SPAREPARTS_NUM = "sparepartsNum";
+    public static final String HISTORY_ORDER = "historyOrder";
+    private Order order;
+    private com.kwaijian.facility.DataCenter.Home.DataObj.Data mData;
+    private Handler mHandler;
+    private String httpFlag;
+    private String imageUrl;
+    private StringBuilder imageId;
+    private int sparepartsOperator;
+    private int sparepartsUpdatedIndex;
+    //	private ArrayList<String> selectedSpareparts = new ArrayList<String>();
+    private boolean havePickedDate = true;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState, @Nullable PersistableBundle persistentState) {
+        super.onCreate(savedInstanceState, persistentState);
+        mHandler = new Handler();
+        mData = com.kwaijian.facility.DataCenter.Home.DataObj.Data.getInstence().getInstence();
+        setContentView(R.layout.page_order_detail_info2);
+        initView();
+    }
+
+    public void initView() {
+        ((TextView) findViewById(R.id.title)).setText("工单详情");
+        ((TextView) findViewById(R.id.images)).setText("故障图片");
+        findViewById(R.id.save).setVisibility(View.GONE);
+        findViewById(R.id.add_image).setVisibility(View.GONE);
+        findViewById(R.id.get_report).setOnClickListener(this);
+        findViewById(R.id.facility).setOnClickListener(this);
+        findViewById(R.id.add_company_spareparts).setOnClickListener(this);
+        findViewById(R.id.depart_time).setOnClickListener(this);
+        findViewById(R.id.arrive_time).setOnClickListener(this);
+        findViewById(R.id.leave_time).setOnClickListener(this);
+
+        ImageView image = (ImageView) findViewById(R.id.add_image);
+        image.setImageDrawable(new AddImageDrawable());
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new PickImageUploadDialog(ServerDetailActivity.this).show();
+            }
+        });
+
+        final int id = Integer.parseInt(getIntent().getStringExtra("id"));
+        for (int i = 0; i < mData.getOrderlist().size(); i++) {
+            if (mData.getOrderlist().get(i).getId().equals(id)) {
+                order = mData.getOrderlist().get(i);
+                break;
+            }
+        }
+        new Thread(new Runnable() {
+            public void run() {
+                httpFlag = HttpConst.Request.GET_SERVICE_DETAIL;
+                HttpRequest request = new HttpRequest(ServerDetailActivity.this);
+                try {
+                    JSONObject json = new JSONObject().put("service_id", id);
+                    request.postRequest(HttpConst.Request.GET_SERVICE_DETAIL, json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!(resultCode == Activity.RESULT_OK)) {
+            return;
+        }
+        if (requestCode == GET_FACILITY_LIST) {
+            TextView facility = (TextView) findViewById(R.id.device_info);
+            facility.setText(data.getStringExtra(FACILITY_NAME));
+            facility.setTag(data.getStringExtra(FACILITY_ID));
+            ((ViewGroup)findViewById(R.id.container)).removeAllViews();
+        }else if (requestCode == GET_SPAREPARTS_LIST) {
+            ViewGroup rootView = (ViewGroup) findViewById(R.id.container);
+            initSparepartsList(data.getStringExtra(SPAREPARTS_ID), data.getStringExtra(SPAREPARTS_MODEL),null,null,null,
+                    rootView);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void initSparepartsList(String id, String oldModel, String oldSN, String newModel,
+                                    String newSN, ViewGroup rootView) {
+        View container;
+        final TextView mOldModel;
+        if (sparepartsOperator == ADD_SPAREPARTS) {
+            container = LayoutInflater.from(this).inflate(R.layout.company_spareparts_item, null);
+            container.setId(Integer.parseInt(id));
+//			selectedSpareparts.add(id);
+            rootView.addView(container);
+        }else{
+//			selectedSpareparts.remove(String.valueOf(sparepartsUpdatedIndex));
+//			selectedSpareparts.add(id);
+            container = findViewById(R.id.container).findViewById(sparepartsUpdatedIndex);
+        }
+        EditText mOldSN = (EditText) container.findViewById(R.id.old_company_spareparts_SN);
+        EditText mNewModel = (EditText) container.findViewById(R.id.new_company_spareparts_model);
+        EditText mNewSN = (EditText) container.findViewById(R.id.new_company_spareparts_SN);
+        mOldSN.setText(oldSN);
+        mNewModel.setText(newModel);
+        mNewSN.setText(newSN);
+        mOldModel = (TextView) container.findViewById(R.id.old_company_spareparts_model);
+        mOldModel.setText(oldModel);
+//		mOldModel.setTag(id);
+		/*mOldModel*/container.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sparepartsOperator = UPDATE_SPAREPARTS;
+                sparepartsUpdatedIndex = /*Integer.parseInt((String) mOldModel.getTag())*/v.getId() ;
+                chooseSpareparts();
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void callback(final String data) {
+        LogUtils.d("orderdetail-----"+data);
+        mHandler.post(new Runnable() {
+            public void run() {
+                CustomDialog.dismissDialog();
+                if (data == null) {
+                    ToastUtils.show(ServerDetailActivity.this, "请求服务器失败");
+                    return;
+                }
+                try {
+                    JSONObject json = new JSONObject(data);
+                    if(json.get("errCode").equals(0)){
+                        if(httpFlag.equals(HttpConst.Request.GET_SERVICE_DETAIL)){
+                            setViewText(json);
+                        } else if (httpFlag.equals(HttpConst.Request.UPDATE_SERVICE)) {
+                            finish();
+                        }else if (httpFlag.equals(HttpConst.Request.DOWNLOAD_IMAGE)) {
+                            File image = new File(Environment.getExternalStorageDirectory(), "Facility/image/"+json.getString("imageId")+".png");
+                            LoadImageManager.addImage(ServerDetailActivity.this, image.toString(), (ViewGroup)findViewById(R.id.add_image).getParent());
+                        }
+                    }else{
+                        ToastUtils.show(ServerDetailActivity.this, (String)json.get("errMsg"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void setViewText(JSONObject json) throws JSONException {
+        order = new Order();
+        order.setData(json.getJSONObject("service"));
+        Company applyCompany = order.getApplyCompany();
+        Company finalCompany = order.getFinalCompany();
+        Contacts applyLinkman = order.getApplyLinkman();
+        Contacts finalLinkman = order.getFinalLinkman();
+        Facility facility = order.getFacility();
+        List<Order.Spareparts> sparepartsList = order.getSpareparts();
+        if (applyCompany!=null) {
+            ((TextView)findViewById(R.id.company)).setText(applyCompany.getName());
+        }
+        if (finalCompany!=null) {
+            ((TextView)findViewById(R.id.final_company)).setText(finalCompany.getName());
+            ((TextView)findViewById(R.id.final_contact_address)).setText(finalCompany.getAddress());
+        }
+        if (applyLinkman!=null) {
+            ((TextView)findViewById(R.id.contact)).setText(applyLinkman.getName());
+            ((TextView)findViewById(R.id.contact_tel)).setText(applyLinkman.getMobile());
+        }
+        if (finalLinkman!=null) {
+            ((TextView)findViewById(R.id.final_contact)).setText(finalLinkman.getName());
+            ((TextView)findViewById(R.id.final_contact_tel)).setText(finalLinkman.getMobile());
+//			((TextView)findViewById(R.id.final_contact_address)).setText(finalLinkman.getAddress());
+        }
+        if (facility!=null) {
+            ((TextView)findViewById(R.id.device_info)).setText(facility.getName());
+        }
+        if (sparepartsList!=null) {
+            for (int i = 0; i < sparepartsList.size(); i++) {
+                Order.Spareparts spareparts = sparepartsList.get(i);
+                sparepartsOperator = ADD_SPAREPARTS;
+                initSparepartsList(spareparts.getOldId(), spareparts.getOldModel(), spareparts.getOldSN(),
+                        spareparts.getNewModel(), spareparts.getNewSN(), (ViewGroup) findViewById(R.id.container));
+            }
+        }
+        ((EditText)findViewById(R.id.fault_reason)).setText(order.getFaultReason());
+        ((EditText)findViewById(R.id.fault_symptom)).setText(order.getFaultSymptom());
+        ((EditText)findViewById(R.id.fault_desc)).setText(order.getFaultDesc());
+        ((EditText)findViewById(R.id.fault_process)).setText(order.getFaultProcess());
+        ((EditText)findViewById(R.id.fault_completion)).setText(order.getFaultCompletion());
+        ((TextView)findViewById(R.id.remark)).setText(order.getRemark());
+        ((EditText)findViewById(R.id.record)).setText(order.getRecord());
+        if (!order.getApplyTime().equals("0")) {
+            ((TextView)findViewById(R.id.apply_time)).setText(Utils.formatTime(order.getApplyTime()));
+        }
+        if (!order.getConfirmTime().equals("0")) {
+            ((TextView)findViewById(R.id.confirm_time)).setText(Utils.formatTime(order.getConfirmTime()));
+        }
+        if (!order.getContactTime().equals("0")) {
+            ((TextView)findViewById(R.id.contact_time)).setText(Utils.formatTime(order.getContactTime()));
+        }
+        if (!order.getDepartTime().equals("0")) {
+            ((TextView)findViewById(R.id.depart_time)).setText(Utils.formatTime(order.getDepartTime()));
+        }
+        if (!order.getArriveTime().equals("0")) {
+            ((TextView)findViewById(R.id.arrive_time)).setText(Utils.formatTime(order.getArriveTime()));
+        }
+        if (!order.getLeaveTime().equals("0")) {
+            ((TextView)findViewById(R.id.leave_time)).setText(Utils.formatTime(order.getLeaveTime()));
+        }
+        if (!order.getServiceTime().equals("0.0")) {
+            ((TextView)findViewById(R.id.service_time)).setText(order.getServiceTime()+"小时");
+        }
+        String[] mImageId = order.getFaultImage();
+        File sdDir = new File(Environment.getExternalStorageDirectory(), "Facility/image/");
+        if (!sdDir.exists()) {
+            sdDir.mkdirs();
+        }
+        for (int i = 0; i < mImageId.length; i++) {
+            if (TextUtils.isEmpty(mImageId[i])) {
+                continue;
+            }
+            if (imageId == null) {
+                imageId = new StringBuilder();
+                imageId.append(mImageId[i]);
+            } else {
+                imageId.append("," + mImageId[i]);
+            }
+            final File image = new File(sdDir, mImageId[i] + ".png");
+            if (image.exists()) {
+                LoadImageManager.addImage(this, image.toString(), (ViewGroup)findViewById(R.id.add_image).getParent());
+            }else{
+                CustomDialog.createLoadingDialog(this);
+                httpFlag = HttpConst.Request.DOWNLOAD_IMAGE;
+                final String id = mImageId[i];
+                new Thread(new Runnable() {
+                    public void run() {
+                        HttpRequest request = new HttpRequest(ServerDetailActivity.this);
+                        request.downloadImage(id, image);
+                    }
+                }).start();
+
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        Bundle bundle;
+//        super.onClick(v);
+        switch (v.getId()) {
+            case R.id.get_report:
+                String completion = ((TextView)findViewById(R.id.fault_completion)).getText().toString();
+                String desc = ((TextView)findViewById(R.id.fault_desc)).getText().toString();
+                String process = ((TextView)findViewById(R.id.fault_process)).getText().toString();
+                String reason = ((TextView)findViewById(R.id.fault_reason)).getText().toString();
+                String symptom = ((TextView)findViewById(R.id.fault_symptom)).getText().toString();
+                if (checkParams()) {
+                    updateOrder(reason, symptom, desc, process, completion);
+                }
+                break;
+
+            case R.id.facility:
+                Company fc = (Company) findViewById(R.id.final_company).getTag();
+                bundle = new Bundle();
+                if (fc!=null) {
+                    bundle.putString(FacilityListPage.COMPANY_ID, fc.getId());
+                }else if (order.getFinalCompany() != null) {
+                    bundle.putString(FacilityListPage.COMPANY_ID, order.getFinalCompany().getId());
+                }else {
+                    ToastUtils.show(this, "请先选择公司");
+                    return;
+                }
+                PageActivity.openPageForResult(this, FacilityListPage.class, bundle, GET_FACILITY_LIST);
+                break;
+
+            case R.id.add_company_spareparts:
+                sparepartsOperator = ADD_SPAREPARTS;
+                chooseSpareparts();
+                break;
+
+            case R.id.depart_time:
+//			PickTimeDialog dialog = new PickTimeDialog(this, new PickTimeListener() {
+//				@Override
+//				public void completed(String time) {
+//					((TextView)findViewById(R.id.depart_time)).setText(time);
+//				}
+//			});
+//			dialog.show();
+                pickTime(findViewById(R.id.depart_time));
+                break;
+
+            case R.id.arrive_time:
+                pickTime(findViewById(R.id.arrive_time));
+                break;
+            case R.id.leave_time:
+                pickTime(findViewById(R.id.leave_time));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void pickTime(final View textView) {
+        Utils.pickDateTime(this, new Utils.DateTimeCallback() {
+            @Override
+            public void onDataTimeCallback(String date) {
+                ((TextView)textView).setText(date);
+            }
+        });
+    }
+
+
+    private boolean checkParams() {
+        TextView applyCompany = (TextView) findViewById(R.id.company);
+        TextView applyLinkman = (TextView) findViewById(R.id.contact);
+        TextView finalCompany = (TextView) findViewById(R.id.final_company);
+        TextView finalLinkman = (TextView) findViewById(R.id.final_contact);
+        TextView facility = (TextView) findViewById(R.id.device_info);
+//		if (TextUtils.isEmpty(applyCompany.getText())) {
+//			ToastUtils.show(this, "请先选择申请服务的公司");
+//			return false;
+//		}
+//		if (TextUtils.isEmpty(applyLinkman.getText())) {
+//			ToastUtils.show(this, "请先选择申请服务的联系人");
+//			return false;
+//		}
+//		if (TextUtils.isEmpty(finalCompany.getText())) {
+//			ToastUtils.show(this, "请先选择申请最终服务的公司");
+//			return false;
+//		}
+//		if (TextUtils.isEmpty(finalLinkman.getText())) {
+//			ToastUtils.show(this, "请先选择申请最终服务的联系人");
+//			return false;
+//		}
+//		if (TextUtils.isEmpty(facility.getText())) {
+//			ToastUtils.show(this, "请先选择申请设备");
+//			return false;
+//		}
+		/*ViewGroup rootView = (ViewGroup) findViewById(R.id.container);
+		boolean isFillNewSN = true;
+		for (int i = 0; i < rootView.getChildCount(); i++) {
+			View container = rootView.getChildAt(i);
+			String oldSN = ((EditText)container.findViewById(R.id.old_company_spareparts_SN)).getText().toString();
+			String newModel = ((EditText)container.findViewById(R.id.new_company_spareparts_model)).getText().toString();
+			String newSN = ((EditText) container.findViewById(R.id.new_company_spareparts_SN)).getText().toString();
+			if (TextUtils.isEmpty(oldSN)) {
+				ToastUtils.show(this, "请填写旧备件的序列号");
+				isFillNewSN = false;
+				break;
+			}
+			if (TextUtils.isEmpty(newModel)) {
+				ToastUtils.show(this, "请填写新备件的型号");
+				isFillNewSN = false;
+				break;
+			}
+			if (TextUtils.isEmpty(newSN)) {
+				ToastUtils.show(this, "请填写新备件的序列号");
+				isFillNewSN = false;
+				break;
+			}
+
+		}
+		if (!isFillNewSN) {
+			return false;
+		}*/
+        return true;
+    }
+
+    private void chooseSpareparts(){
+        Company c = (Company) findViewById(R.id.final_company).getTag();
+        Bundle bundle = new Bundle();
+        if (c!=null) {
+            bundle.putString(FacilityListPage.COMPANY_ID, c.getId());
+        }else if (order.getFinalCompany() != null) {
+            bundle.putString(FacilityListPage.COMPANY_ID, order.getFinalCompany().getId());
+        }else {
+            ToastUtils.show(this, "请先选择公司");
+            return;
+        }
+        String facilityId = (String) findViewById(R.id.device_info).getTag();
+        if (facilityId!=null) {
+            bundle.putString(CompanySparepartsListPage.FACILITY_ID, facilityId);
+        }else if (order.getFacility()!=null) {
+            bundle.putString(CompanySparepartsListPage.FACILITY_ID, order.getFacility().getId());
+        }else {
+            ToastUtils.show(this, "请先选择设备");
+            return;
+        }
+//		bundle.putStringArrayList(CompanySparepartsListPage.SELECTED_SPAREPARTS_ID, selectedSpareparts);
+        PageActivity.openPageForResult(this, CompanySparepartsListPage.class, bundle, GET_SPAREPARTS_LIST);
+    }
+
+    private void updateOrder(final String reason, final String symptom, final String desc,
+                             final String process, final String completion) {
+        new Thread(new Runnable() {
+            public void run() {
+                httpFlag = HttpConst.Request.UPDATE_SERVICE;
+                HttpRequest request = new HttpRequest(ServerDetailActivity.this);
+                JSONObject json;
+                try {
+                    order.setRecord(((EditText)findViewById(R.id.record)).getText().toString());
+                    order.setFaultCompletion(completion);
+                    order.setFaultDesc(desc);
+                    order.setFaultProcess(process);
+                    order.setFaultReason(reason);
+                    order.setFaultSymptom(symptom);
+                    TextView departTime = (TextView) findViewById(R.id.depart_time);
+                    TextView arriveTime = (TextView) findViewById(R.id.arrive_time);
+                    TextView leaveTime = (TextView) findViewById(R.id.leave_time);
+                    TextView serviceTime = (TextView) findViewById(R.id.service_time);
+                    order.setDepartTime(departTime.getText().toString());
+                    order.setArriveTime(arriveTime.getText().toString());
+                    order.setLeaveTime(leaveTime.getText().toString());
+                    order.setServiceTime(serviceTime.getText().toString());
+//					order.setFacilityId((String) findViewById(R.id.device_info).getTag());
+                    if(imageId!=null){
+                        order.setFaultImage(imageId.toString().split(","));
+                    }
+                    if(findViewById(R.id.company).getTag()!=null){
+                        Company company = (Company) findViewById(R.id.company).getTag();
+                        order.setApplyCompanyId(company.getId());
+                    }
+                    if (findViewById(R.id.contact).getTag()!=null) {
+                        order.setApplyLinkmanId(findViewById(R.id.contact).getTag().toString());
+                    }
+                    if (findViewById(R.id.final_company).getTag()!=null) {
+                        Company company = (Company) findViewById(R.id.final_company).getTag();
+                        order.setFinalCompanyId(company.getId());
+                    }
+                    if (findViewById(R.id.final_contact).getTag()!=null) {
+                        order.setFinalLinkmanId(findViewById(R.id.final_contact).getTag().toString());
+                    }
+                    if (findViewById(R.id.device_info).getTag()!=null) {
+                        order.setFacilityId(findViewById(R.id.device_info).getTag().toString());
+                    }
+                    ViewGroup rootView = (ViewGroup) findViewById(R.id.container);
+                    List<Order.Spareparts> sparepartsList = new ArrayList<Order.Spareparts>();
+                    for (int i = 0; i < rootView.getChildCount(); i++) {
+                        View container = rootView.getChildAt(i);
+                        String oldId = (String) container.findViewById(R.id.old_company_spareparts_model).getTag();
+                        String oldModel = ((TextView) container.findViewById(R.id.old_company_spareparts_model)).getText().toString();
+                        String oldSN = ((TextView) container.findViewById(R.id.old_company_spareparts_SN)).getText().toString();
+                        String newModel  = ((TextView) container.findViewById(R.id.new_company_spareparts_model)).getText().toString();
+                        String newSN = ((TextView) container.findViewById(R.id.new_company_spareparts_SN)).getText().toString();
+                        Order.Spareparts spareparts = order.new Spareparts();
+                        spareparts.setServiceId(order.getId());
+                        spareparts.setOldId(oldId);
+                        spareparts.setOldModel(oldModel);
+                        spareparts.setOldSN(oldSN);
+                        spareparts.setNewModel(newModel);
+                        spareparts.setNewSN(newSN);
+                        sparepartsList.add(spareparts);
+                    }
+                    order.setSpareparts(sparepartsList);
+                    json = new JSONObject().put("service", order.orderToJson());
+                    LogUtils.d("update order's json    :  "+json);//
+                    request.postRequest(HttpConst.Request.UPDATE_SERVICE, json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
+}

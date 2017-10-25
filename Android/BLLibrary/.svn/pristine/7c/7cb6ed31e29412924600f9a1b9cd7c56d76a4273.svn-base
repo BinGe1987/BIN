@@ -1,0 +1,201 @@
+package com.kwaijian.facility.DataCenter.Home.DataObj;
+
+import android.content.Context;
+import android.content.res.AssetManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Data {
+
+	private static Data sData;
+
+	public static Data getInstence() {
+		if (sData == null) {
+			sData = new Data();
+		}
+		return sData;
+	}
+
+	private User mUser;
+	private List<Order> mOrderlist;
+	private List<Order> mHistoryOrderlist;
+
+	private List<Repair> mRepairlist;
+	private List<Repair> mHistoryRepairlist;
+
+	private List<Contacts> mLinkmanlist;
+	private List<Spare> mSparepartslist;
+	private List<Facility> mFacilitylist;
+
+	private Data() {
+		mOrderlist = new ArrayList<Order>();
+		mHistoryOrderlist = new ArrayList<Order>();
+
+		mRepairlist = new ArrayList<>();
+		mHistoryRepairlist = new ArrayList<>();
+
+		mLinkmanlist = new ArrayList<Contacts>();
+		mSparepartslist = new ArrayList<Spare>();
+		mFacilitylist = new ArrayList<Facility>();
+		mUser = new User();
+		// test();
+	}
+
+	public User getUser() {
+		return mUser;
+	}
+
+	public void initUser(JSONObject json) {
+		mUser.setData(json);
+	}
+	
+	public List<Order> getOrderlist() {
+		return mOrderlist;
+	}
+
+	public List<Repair> getRepairlist() {
+		return mRepairlist;
+	}
+
+	public List<Order> getHistoryOrderlist() {
+		return mHistoryOrderlist;
+	}
+
+	public List<Repair> getHistoryRepairlist() {
+		return mHistoryRepairlist;
+	}
+
+	public List<Contacts> getmLinkmanlist() {
+		return mLinkmanlist;
+	}
+	
+	public List<Spare> getmSparepartslist() {
+		return mSparepartslist;
+	}
+
+	public List<Facility> getmFacilitylist() {
+		return mFacilitylist;
+	}
+
+	public void getOrderTest(Context context) {
+		Order order = null;
+
+		try {
+			AssetManager s = context.getAssets();
+			InputStream is;
+			is = s.open("data.json");
+			byte[] buffer = new byte[is.available()];
+			is.read(buffer);
+			String json = new String(buffer, "utf-8");
+			is.close();
+			JSONObject obj;
+			obj = new JSONObject(json);
+			getOrders(obj.getJSONArray("order"));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public void getOrders(JSONArray jsonarray) {
+		mOrderlist.clear();
+		mHistoryOrderlist.clear();
+		List<Order> orders = new ArrayList<Order>();
+		for (int i = 0; i < jsonarray.length(); i++) {
+			try {
+				Order order = new Order();
+				order.setData(jsonarray.getJSONObject(i));
+//				if (order.getServiceStatus() == 0) {
+//					mOrderlist.add(order);
+//				} else {
+//					mHistoryOrderlist.add(order);
+//				}
+				if (order.getServiceStatus() == 1) {
+					mOrderlist.add(order);
+				} else {
+					mHistoryOrderlist.add(order);
+				}
+				orders.add(order);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	public void getRepairlist(JSONArray jsonarray) {
+		mRepairlist.clear();
+		mHistoryRepairlist.clear();
+		List<Repair> orders = new ArrayList<>();
+		for (int i = 0; i < jsonarray.length(); i++) {
+			try {
+				Repair order = new Repair();
+				order.setData(jsonarray.getJSONObject(i));
+                if (!order.isFinish()) {
+                    mRepairlist.add(order);
+                } else {
+                    mHistoryRepairlist.add(order);
+                }
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	public void getLinkmans(JSONArray jsonArray){
+//		List<Contacts> linkmans = new ArrayList<Contacts>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			Contacts linkman = new Contacts();
+			try {
+				linkman.setData(jsonArray.getJSONObject(i));
+				mLinkmanlist.add(linkman);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	
+	public void getSpareparts(JSONArray jsonArray){
+		mSparepartslist.clear();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			Spare sparepart = new Spare();
+			try {
+				sparepart.setData(jsonArray.getJSONObject(i));
+				mSparepartslist.add(sparepart);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void getFacilities(JSONArray jsonArray){
+		mFacilitylist.clear();
+		for (int i = 0; i < jsonArray.length(); i++) {
+			Facility facility = new Facility();
+			try {
+				facility.setData(jsonArray.getJSONObject(i));
+				mFacilitylist.add(facility);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	/*public JSONObject orderToJson(Order order){
+		
+		
+		return null;
+	}*/
+
+}

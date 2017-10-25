@@ -1,0 +1,89 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Base application theme. -->
+    <style name="ThemeLight" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/color_w</item>
+        <item name="colorPrimaryDark">@color/color_w</item>
+        <item name="colorAccent">@color/color_1</item>
+        <item name="android:windowBackground">@color/color_w</item>
+    </style>
+
+    <style name="HomeActivity" parent="ThemeLight">
+        <item name="colorPrimary">@color/color_1</item>
+        <item name="colorPrimaryDark">@color/color_1</item>
+    </style>
+
+    <!--左右push动画主题-->
+    <style name="ThemeLightPush" parent="@style/ThemeLight">
+        <item name="android:windowAnimationStyle">@style/PushAnimation</item>
+    </style>
+
+    <!--从底部压入动画主题-->
+    <style name="ThemeLightPresentation" parent="@style/ThemeLight">
+        <item name="android:windowAnimationStyle">@style/PresentationAnimation</item>
+    </style>
+
+    <!--渐变动画主题-->
+    <style name="ThemeLightAlpha" parent="@style/ThemeLight">
+        <item name="android:windowAnimationStyle">@style/AlphaAnimation</item>
+    </style>
+
+    <style name="ThemePrimary" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/color_1</item>
+        <item name="colorPrimaryDark">@color/color_1</item>
+        <item name="colorAccent">@color/color_4</item>
+    </style>
+
+    <style name="progress" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+
+
+    <!--Activity 动画样式-->
+    <!--左右推入-->
+    <style name="PushAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_push_open_in</item>
+        <item name="android:activityOpenExitAnimation">@anim/activity_push_open_out</item>
+        <item name="android:activityCloseEnterAnimation">@anim/activity_push_close_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_push_close_out</item>
+    </style>
+    <!--底部向上-->
+    <style name="PresentationAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_presentation_open_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_presentation_close_out</item>
+    </style>
+    <!--渐变-->
+    <style name="AlphaAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/activity_alpha_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/activity_alpha_out</item>
+    </style>
+
+    <!-- Application theme. -->
+ 
+    
+    <style name="dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+     <style name="pickTimedialog" parent="@android:style/Theme.Light">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+</resources>

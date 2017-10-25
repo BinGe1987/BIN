@@ -1,0 +1,151 @@
+package com.kwaijian.facility.UI.Home.Repair;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import com.kwaijian.facility.OldSource.widget.CustomDialog;
+import com.kwaijian.facility.UI.Home.Old.PageActivity;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Data;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Repair;
+import com.kwaijian.facility.OldSource.pageview.RepairDetailPage;
+import com.kwaijian.facility.OldSource.pageview.RepairHistoryDetailPage;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class RepairItem extends FrameLayout implements OnClickListener, RequestCallback {
+    private String httpFlag;
+    private Handler mHandler;
+    private NotifyDataChange notifyDataChange;
+
+    public void setNotifyDataChange(NotifyDataChange notifyDataChange) {
+        this.notifyDataChange = notifyDataChange;
+    }
+
+    public RepairItem(Context context) {
+        this(context, null);
+    }
+
+    public RepairItem(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        LayoutInflater.from(context).inflate(R.layout.item_repair, this);
+        mHandler = new Handler();
+        setOnClickListener(this);
+    }
+
+    public void setOrder(Repair order) {
+        setTag(order);
+        TextView time = (TextView) findViewById(R.id.time);
+        TextView device = (TextView) findViewById(R.id.info);
+        TextView desc = (TextView) findViewById(R.id.desc);
+        time.setText(Utils.formatTime(order.getCreateTime()));
+        device.setText(order.getOrderNumber());
+        desc.setText(order.getFaultDesc());
+        TextView statusView = (TextView) findViewById(R.id.status);
+        if (order.isFinish()) {
+            statusView.setText("已完成");
+        } else {
+            statusView.setText("未完成");
+        }
+
+        TextView finish = (TextView) findViewById(R.id.finish);
+        if (order.isFinish()) {
+            finish.setVisibility(View.GONE);
+        }
+        finish.setOnClickListener(this);
+    }
+
+    private void finishOrCancel(final String interfaceType) {
+        httpFlag = interfaceType;
+        new Thread(new Runnable() {
+            public void run() {
+                HttpRequest request = new HttpRequest(RepairItem.this);
+                JSONObject json;
+                try {
+                    json = new JSONObject().put("repair_id", ((Repair) getTag()).getId());
+                    request.postRequest(interfaceType, json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public void onClick(View v) {
+        CustomDialog.dismissDialog();
+        switch (v.getId()) {
+            case R.id.finish:
+                CustomDialog.createMessageDialog(getContext(), "确认完成订单？", new CustomDialog.ReturnResults() {
+                    @Override
+                    public void result(Object o) {
+                        if (o.equals("YES")) {
+                            finishOrCancel(HttpConst.Request.FINISH_REPAIR);
+                        }
+                    }
+                }).show();
+                break;
+            default:
+                Repair order = (Repair) v.getTag();
+                Bundle b = new Bundle();
+                b.putString(RepairDetailPage.ORDER_ID, order.getOrderNumber());
+
+                if (order.isFinish()) {
+                    PageActivity.openPage(getContext(), RepairHistoryDetailPage.class, b);
+                } else {
+                    PageActivity.openPageForResult(getContext(), RepairDetailPage.class, b, 1);
+                }
+                break;
+        }
+
+    }
+
+    @Override
+    public void callback(final String data) {
+        LogUtils.d(data);
+        mHandler.post(new Runnable() {
+            public void run() {
+                if (data == null) {
+                    ToastUtils.show(getContext(), "请求服务器失败");
+                    return;
+                }
+                try {
+                    JSONObject json = new JSONObject(data);
+                    if (json.get("errCode").equals(0)) {
+                        if (httpFlag.equals(HttpConst.Request.FINISH_REPAIR) ||
+                                httpFlag.equals(HttpConst.Request.CANCEL_REPAIR)) {
+//                            getServiceList();
+
+                        } else if (httpFlag.equals(HttpConst.Request.GET_REPAIR_LIST)) {
+                            Data.getInstence().getRepairlist(json.getJSONArray("list_repair"));
+                            notifyDataChange.notifyDataChange();
+                        }
+                    } else if (json.get("errCode").equals(10)) {
+                        ToastUtils.show(getContext(), json.get("errDesc").toString());
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public interface NotifyDataChange {
+        void notifyDataChange();
+    }
+
+}

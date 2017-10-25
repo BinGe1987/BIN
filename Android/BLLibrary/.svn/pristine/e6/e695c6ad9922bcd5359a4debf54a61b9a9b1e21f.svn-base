@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_windowBackground"
+    android:orientation="vertical">
+
+    <com.kwaijian.facility.UI.BaseClass.Views.TitleView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="@color/color_w"
+        android:elevation="1dp" />
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/transparent"
+        android:listSelector="@drawable/selector"
+        android:scrollbars="none" />
+
+</LinearLayout>

@@ -1,0 +1,59 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_windowBackground"
+    android:orientation="vertical">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager_activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <include layout="@layout/line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="horizontal"
+        android:padding="2sp">
+
+        <TextView
+            android:id="@+id/order_service"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="1dp"
+            android:drawableTop="@mipmap/tab1_d"
+            android:gravity="center_horizontal"
+            android:text="服务"
+            android:textColor="@color/background_statusbar"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/order_repair"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="1dp"
+            android:drawableTop="@mipmap/tab4_u"
+            android:gravity="center_horizontal"
+            android:text="维修"
+            android:textColor="@color/color_tab_unselected"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/devices"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="1dp"
+            android:drawableTop="@mipmap/tab3_u"
+            android:gravity="center_horizontal"
+            android:text="设备"
+            android:textColor="@color/color_tab_unselected"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+</LinearLayout>

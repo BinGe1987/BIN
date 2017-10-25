@@ -1,0 +1,58 @@
+package com.kwaijian.facility.UI.Home.Old;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.kwaijian.facility.DataCenter.Home.DataObj.Company;
+import com.kwaijian.facility.OldSource.tools.Density;
+
+import java.util.List;
+
+public class CompanyListAdapter extends BaseAdapter {
+
+	private List<Company> mCompanys;
+
+	public CompanyListAdapter(List<Company> list) {
+		mCompanys = list;
+	}
+	
+	public void update(){
+		notifyDataSetChanged();
+	}
+
+	@Override
+	public int getCount() {
+		return mCompanys == null ? 0 : mCompanys.size();
+		// return 0;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return null;
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return 0;
+	}
+
+	@Override
+	public View getView(final int position, View convertView, final ViewGroup parent) {
+//		LogUtils.d("count:" + getCount());
+		TextView item = null;
+		if (convertView == null) {
+			item = new TextView(parent.getContext());
+			
+			item.setPadding(Density.dip2px(10), Density.dip2px(10), Density.dip2px(10), Density.dip2px(10));
+			convertView = item;
+		} else {
+			item = (TextView) convertView;
+		}
+
+		item.setText(mCompanys.get(position).getName());
+		return convertView;
+	}
+
+}

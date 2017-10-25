@@ -1,0 +1,64 @@
+package com.kwaijian.facility.UI.Home.Old;
+
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.TextView;
+
+import com.kwaijian.facility.DataCenter.Home.obj.Contacts;
+import com.kwaijian.facility.OldSource.tools.Density;
+
+import java.util.List;
+
+public class ContactListAdapter extends BaseAdapter {
+
+	private List<Contacts> mContacts;
+
+	public ContactListAdapter(List<Contacts> list) {
+		mContacts = list;
+	}
+
+	@Override
+	public int getCount() {
+		return mContacts == null ? 0 : mContacts.size();
+		// return 0;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return mContacts.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+
+	}
+
+	@Override
+	public View getView(final int position, View convertView, final ViewGroup parent) {
+		/*View v = null;
+		if (convertView == null) {
+
+			v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listview_item, null);
+			
+			convertView = v;
+		} else {
+			v = convertView;
+		}
+		((TextView) v.findViewById(R.id.item)).setText(mContacts.get(position).getName());
+
+		return convertView;*/
+		TextView item = null;
+		if(convertView == null){
+			item = new TextView(parent.getContext());
+			item.setPadding(Density.dip2px(10), Density.dip2px(10), Density.dip2px(10), Density.dip2px(10));
+			convertView = item;
+		} else {
+			item = (TextView) convertView;
+		}
+		item.setText(mContacts.get(position).getName());
+		return convertView;
+	}
+
+}

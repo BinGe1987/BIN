@@ -1,0 +1,161 @@
+package com.kwaijian.facility.OldSource.widget;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import com.kwaijian.facility.UI.Home.Old.PageActivity;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.DataCenter.Home.obj.Data;
+import com.kwaijian.facility.DataCenter.Home.obj.Order;
+import com.kwaijian.facility.OldSource.pageview.OrderDetailPage;
+import com.kwaijian.facility.OldSource.pageview.OrderHistoryDetailPage;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.OldSource.widget.CustomDialog.ReturnResults;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class OrderItem extends FrameLayout implements OnClickListener, RequestCallback {
+	private String httpFlag;
+	private Handler mHandler;
+	private NotifyDataChange notifyDataChange;
+	
+	public void setNotifyDataChange(NotifyDataChange notifyDataChange) {
+		this.notifyDataChange = notifyDataChange;
+	}
+
+	public OrderItem(Context context) {
+		this(context, null);
+	}
+
+	public OrderItem(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		LayoutInflater.from(context).inflate(R.layout.item_order, this);
+		mHandler = new Handler();
+		setOnClickListener(this);
+	}
+
+	public void setOrder(Order order) {
+		setTag(order);
+		TextView time = (TextView) findViewById(R.id.time);
+		TextView device = (TextView) findViewById(R.id.info);
+		TextView desc = (TextView) findViewById(R.id.desc);
+		time.setText(Utils.formatTime(order.getApplyTime()));
+		device.setText(order.getOrderNumber());
+		desc.setText(order.getFaultDesc());
+		TextView statusView = (TextView) findViewById(R.id.status);
+		if (order.getServiceStatus() == Order.STATUS_DOME) {
+			statusView.setText("已完成");
+		} else {
+			statusView.setText("未完成");
+		}
+
+		Button finish = (Button) findViewById(R.id.finish);
+		if (order.getServiceStatus() == 0) {
+			finish.setVisibility(View.GONE);
+		}
+		finish.setOnClickListener(this);
+	}
+	
+	private void finishOrCancel(final String interfaceType){
+		httpFlag = interfaceType;
+		new Thread(new Runnable() {
+			public void run() {
+				HttpRequest request = new HttpRequest(OrderItem.this);
+				JSONObject json;
+				try {
+					json = new JSONObject().put("service_id", ((Order)getTag()).getId());
+					request.postRequest(interfaceType, json);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	@Override
+	public void onClick(View v) {
+		CustomDialog.dismissDialog();
+		switch (v.getId()) {
+		case R.id.finish:
+			CustomDialog.createMessageDialog(getContext(), "确认完成订单？", new ReturnResults() {
+				@Override
+				public void result(Object o) {
+					if (o.equals("YES")) {
+						finishOrCancel(HttpConst.Request.FINISH_SERVICE);
+					}
+				}
+			}).show();
+			break;
+		default:
+			Order order = (Order) v.getTag();
+			Bundle b = new Bundle();
+			b.putString(OrderDetailPage.ORDER_ID, order.getId());
+			
+			if (order.getServiceStatus() == 0) {
+				PageActivity.openPage(getContext(), OrderHistoryDetailPage.class, b);
+			}else if (order.getServiceStatus() == 1) {
+				PageActivity.openPageForResult(getContext(), OrderDetailPage.class, b, 1);
+			}
+			break;
+		}
+		
+	}
+	
+	public void getServiceList(){
+		new Thread(new Runnable() {
+			public void run() {
+				httpFlag = HttpConst.Request.GET_SERVICE_LIST;
+				HttpRequest request = new HttpRequest(OrderItem.this);
+				request.postRequest(HttpConst.Request.GET_SERVICE_LIST);
+			}
+		}).start();
+	}
+
+	@Override
+	public void callback(final String data) {
+		LogUtils.d(data);
+		mHandler.post(new Runnable() {
+			public void run() {
+				if (data == null) {
+					ToastUtils.show(getContext(), "请求服务器失败");
+					return;
+				}
+				try {
+					JSONObject json = new JSONObject(data);
+					if(json.get("errCode").equals(0)){
+						if (httpFlag.equals(HttpConst.Request.FINISH_SERVICE) ||
+								httpFlag.equals(HttpConst.Request.CANCEL_SERVICE)) {
+							getServiceList();
+						}else if (httpFlag.equals(HttpConst.Request.GET_SERVICE_LIST)) {
+							Data.getInstence().getOrders(json.getJSONArray("list_service"));
+							notifyDataChange.notifyDataChange();
+						}
+					}else if (json.get("errCode").equals(10)) {
+						ToastUtils.show(getContext(), json.get("errDesc").toString());
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	public interface NotifyDataChange{
+		void notifyDataChange();
+	}
+
+}

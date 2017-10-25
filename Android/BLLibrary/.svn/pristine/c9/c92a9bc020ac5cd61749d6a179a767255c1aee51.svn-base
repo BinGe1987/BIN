@@ -1,0 +1,37 @@
+package com.kwaijian.facility.UI.Home.Server;
+
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.UI.BaseClass.Views.HTFragment;
+import com.kwaijian.facility.UI.BaseClass.Views.TitleView;
+
+/**
+ * Created by BinGe on 2017/10/18.
+ */
+
+public class ServerFragment extends HTFragment {
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        mView = inflater.inflate(R.layout.fragment_server, container, false);
+
+        TitleView titleView = (TitleView) mView.findViewById(R.id.title);
+        titleView.setTitle("服务");
+        titleView.setColor(Color.WHITE);
+        titleView.setUnit(TitleView.Unit.TEXT| TitleView.Unit.MENU);
+
+        return mView;
+    }
+
+    @Override
+    public void onFragmentFocus(boolean focus) {
+
+    }
+}

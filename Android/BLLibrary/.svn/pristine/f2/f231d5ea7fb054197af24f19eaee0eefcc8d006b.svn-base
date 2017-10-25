@@ -1,0 +1,38 @@
+package com.kwaijian.facility.DataCenter.Home.Server;
+
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.BaseClasses.HTOperationPerformer;
+import com.kwaijian.facility.DataCenter.DataCenter;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.Utils.Net.Http;
+
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by BinGe on 2017/9/14.
+ * 服务列表处理器
+ */
+
+public class ServerPerformer implements HTOperationPerformer<String> {
+
+    @Override
+    public HTData performOperation(String operation, String params, DataCenter.Callback callback) {
+
+        Map<String, Object> requestParams = new HashMap<>();
+        requestParams.put("interface", operation);//在定义Operation与后台的Interface一样
+        if (params != null) {
+            requestParams.put("param", params);
+        }
+        JSONObject response = Http.post(HttpConst.Request.URL, requestParams);
+        HTData data = new HTData(response);
+        return data;
+    }
+
+    @Override
+    public boolean isAsynchronous() {
+        return false;
+    }
+}

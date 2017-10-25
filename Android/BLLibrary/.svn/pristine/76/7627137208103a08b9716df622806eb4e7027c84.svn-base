@@ -1,0 +1,27 @@
+package com.kwaijian.facility.Constants;
+
+/**
+ * Created by BinGe on 2017/10/19.
+ */
+
+public class EventConst {
+
+    public static class Login {
+        //登录完成
+        public final static String OnLoggedIn = "OnLoggedIn";
+        //退出登录
+        public final static String OnLoggedOut = "OnLoggedOut";
+    }
+
+    public static class Home {
+        //服务列表数据有刷新
+        public final static String OnServerListRefreshed = "OnServerListRefreshed";
+        //服务列表数据有刷新
+        public final static String OnServerHistoryListRefreshed = "OnServerHistoryListRefreshed";
+        //维修列表数据有刷新
+        public final static String OnRepairListRefreshed = "OnRepairListRefreshed";
+        //设备列表数据有刷新
+        public final static String OnFacilityListRefreshed = "OnFacilityListRefreshed";
+    }
+
+}

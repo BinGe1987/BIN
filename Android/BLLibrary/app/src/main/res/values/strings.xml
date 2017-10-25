@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">设备维护系统</string>
+    <string name="login_title">请登录</string>
+    <string name="login_user">请输入账号</string>
+    <string name="login_password">请输入密码</string>
+    <string name="login_log">登录</string>
+    <string name="my_order">服务工单</string>
+    <string name="my_repair">维修工单</string>
+    <string name="my_history">历史工单</string>
+    <string name="my_detail">工单详情</string>
+    <string name="save">保存</string>
+    <string name="add_device">添加设备</string>
+    <string name="update_device">更改设备</string>
+    <string name="add_sparepart">添加备件</string>
+    <string name="update_sparepart">更新备件</string>
+    <string name="contact_detail">联系人详情</string>
+    <string name="edit">编辑</string>
+    <string name="time_entry">时间录入</string>
+    <string name="facility_list">设备列表</string>
+    <string name="contact_list">联系人列表</string>
+    <string name="company_list">企业列表</string>
+    <string name="add">添加</string>
+    <string name="company_detail">企业详情</string>
+    <string name="facility_detail">设备详情</string>
+    <string name="add_company">添加企业</string>
+    <string name="add_contact">添加联系人</string>
+
+    <string name="mobile_contacts">手机通讯录</string>
+</resources>

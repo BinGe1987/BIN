@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
+    android:background="@color/color_w"
+    android:elevation="1dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/color_1"
+        android:elevation="1dp"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:text="处理时间表"
+        android:textColor="@color/color_w"
+        android:textSize="16sp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.TimePickView
+        android:id="@+id/pick_time_depart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.TimePickView
+        android:id="@+id/pick_time_arrive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.TimePickView
+        android:id="@+id/pick_time_leave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/order_detail_item_padding"
+            android:layout_weight="1"
+            android:text="工作时长"
+            android:textColor="@color/color_b"
+            android:textSize="14sp" />
+
+        <EditText
+            android:id="@+id/service_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/facility_back_rect"
+            android:digits="1234567890."
+            android:gravity="center"
+            android:hint="请输入工作时长"
+            android:paddingBottom="3dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="3dp"
+            android:textColor="@color/order_detail_name_color"
+            android:textColorHint="@color/order_detail_name_color"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+</LinearLayout>

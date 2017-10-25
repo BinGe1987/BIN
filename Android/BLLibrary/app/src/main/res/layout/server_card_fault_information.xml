@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
+    android:background="@color/color_w"
+    android:elevation="1dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/color_1"
+        android:elevation="1dp"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:text="故障图片及描述"
+        android:textColor="@color/color_w"
+        android:textSize="16sp" />
+
+    <include layout="@layout/line" />
+
+    <TextView
+        android:id="@+id/images"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/order_detail_item_padding"
+        android:text="图片："
+        android:textColor="@color/color_b"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/image_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:textSize="14sp"
+        android:text="无" />
+
+    <LinearLayout
+        android:id="@+id/image_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="visible">
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:padding="10dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/image_group"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal">
+
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_remark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+</LinearLayout>

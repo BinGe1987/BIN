@@ -1,0 +1,312 @@
+package com.kwaijian.facility.OldSource.pageview;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.DataCenter.Home.obj.Sparepart;
+import com.kwaijian.facility.OldSource.tools.BitmapManager;
+import com.kwaijian.facility.OldSource.tools.LoadImageManager;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.OldSource.widget.AddImageDrawable;
+import com.kwaijian.facility.OldSource.widget.CustomDialog;
+import com.kwaijian.facility.OldSource.widget.CustomDialog.ReturnResults;
+import com.kwaijian.facility.OldSource.widget.PickImageUploadDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class SparepartAddPage extends Page implements RequestCallback, ReturnResults {
+	public static final String FACILITY_ID = "facility_id";
+	public static final String SPAREPART_DETAIL = "sparepartDetail";
+	private StringBuilder imageId;
+	private String httpFlag;
+	private Handler mHandler;
+	private Sparepart mSparepart;
+
+	public SparepartAddPage(Context context) {
+		super(context);
+		setContentView(R.layout.page_sparepart_add);
+		initView(context);
+	}
+
+	private void initView(final Context context) {
+		mHandler = new Handler();
+		if (getBundle().getSerializable(SPAREPART_DETAIL) != null) {
+			((TextView) findViewById(R.id.title)).setText(getContext().getString(R.string.update_sparepart));
+			initSparepart(context, getBundle());
+		} else {
+			((TextView) findViewById(R.id.title)).setText(getContext().getString(R.string.add_sparepart));
+		}
+		findViewById(R.id.right_title_layout).setVisibility(View.GONE);
+		findViewById(R.id.add_device_sparepart).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+//				String name = ((EditText) findViewById(R.id.name)).getText().toString();
+				String model = ((EditText) findViewById(R.id.model)).getText().toString();
+				String brand = ((EditText) findViewById(R.id.brand)).getText().toString();
+				String num = ((EditText) findViewById(R.id.num)).getText().toString();
+				if (model.equals("")) {
+					ToastUtils.show(context, "请输入型号");
+					return;
+				}
+				Pattern pattern = Pattern.compile("[0-9]*"); 
+				Matcher isNum = pattern.matcher(num);
+				if (num.equals("") || !isNum.matches()) {
+					ToastUtils.show(context, "请输入正确数量");
+					return;
+				}
+				mSparepart = new Sparepart();
+				mSparepart.setModel(model);
+				mSparepart.setBrand(brand);
+				mSparepart.setNum(num); 
+				addOrUpdateSpareparts(mSparepart);
+//				String manufacturer = ((EditText) findViewById(R.id.manufacturer)).getText().toString();
+//				String type = ((TextView) findViewById(R.id.type)).getText().toString();
+//				String remark = ((EditText) findViewById(R.id.remark)).getText().toString();
+//				if (!name.equals("") && name.length() > 2 && name.length() < 50) {
+//					if (imageId != null) { 
+//						mSparepart = new Sparepart(name, type, manufacturer, model, imageId.toString().split(","),
+//								remark);
+//					} else {
+//						mSparepart = new Sparepart(name, type, manufacturer, model, null, remark);
+//					}
+//					addOrUpdateSpareparts(mSparepart);
+//				} else {
+//					ToastUtils.show(getContext(), "备件名称长度不合法(2~50字符)");
+//				}
+			}
+		});
+		/*findViewById(R.id.type).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				CustomDialog
+						.createSelecterDialog(getContext(), "请选择控制器类型",
+								new String[] { "控制器", "输入输出模块", "驱动器", "电机", "测量系统", "电缆及其他附件" }, SparepartAddPage.this)
+						.show();
+			}
+		});*/
+		ImageView image = (ImageView) findViewById(R.id.add_image);
+		image.setImageDrawable(new AddImageDrawable());
+		image.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				new PickImageUploadDialog(getContext()).show();
+			}
+		});
+	}
+
+	private void initSparepart(Context context, Bundle bundle) {
+		Sparepart sparepart = (Sparepart) bundle.getSerializable(SPAREPART_DETAIL);
+		((EditText) findViewById(R.id.name)).setText(sparepart.getName());
+		((EditText) findViewById(R.id.manufacturer)).setText(sparepart.getManufacturer());
+		((EditText) findViewById(R.id.model)).setText(sparepart.getModel());
+		((EditText) findViewById(R.id.num)).setText(sparepart.getNum());
+		((EditText) findViewById(R.id.brand)).setText(sparepart.getBrand());
+		((EditText) findViewById(R.id.remark)).setText(sparepart.getRemark());
+		((TextView) findViewById(R.id.type)).setText(sparepart.getType());
+		File sdDir = new File(Environment.getExternalStorageDirectory(), "Facility/image/");
+		if (!sdDir.exists()) {
+			sdDir.mkdirs();
+		}
+		if(sparepart.getImageId()!=null){
+			for (int i = 0; i < sparepart.getImageId().length; i++) {
+				if (TextUtils.isEmpty(sparepart.getImageId()[i])) {
+					continue;
+				}
+				if (imageId == null) {
+					imageId = new StringBuilder();
+					imageId.append(sparepart.getImageId()[i]);
+				} else {
+					imageId.append("," + sparepart.getImageId()[i]);
+				}
+				final File image = new File(sdDir, sparepart.getImageId()[i] + ".png");
+				if (image.exists()) {
+					LoadImageManager.addImage(getContext(), image.toString(), (ViewGroup)findViewById(R.id.add_image).getParent());
+				}else{
+					CustomDialog.createLoadingDialog(context);
+					httpFlag = HttpConst.Request.DOWNLOAD_IMAGE;
+					final String id = sparepart.getImageId()[i];
+					new Thread(new Runnable() {
+						public void run() {
+							HttpRequest request = new HttpRequest(SparepartAddPage.this);
+							request.downloadImage(id, image);
+						} 
+					}).start();
+					
+				}
+			}
+		}
+	}
+
+	private void addOrUpdateSpareparts(final Sparepart sparepart) {
+		new Thread(new Runnable() {
+			public void run() {
+				HttpRequest request = new HttpRequest(SparepartAddPage.this);
+				try {
+					if (getBundle().getSerializable(SPAREPART_DETAIL) == null) {
+						httpFlag = HttpConst.Request.ADD_SPAREPARTS;
+						JSONObject json = sparepart.sparepartToJson();
+						JSONObject finalJson = new JSONObject().put("spareparts", json).put(FACILITY_ID,
+								getBundle().getString(FACILITY_ID));
+						request.postRequest(HttpConst.Request.ADD_SPAREPARTS, finalJson);
+					} else {
+						httpFlag = HttpConst.Request.UPDATE_SPAREPARTS;
+						sparepart.setId(((Sparepart) getBundle().getSerializable(SPAREPART_DETAIL)).getId());
+						JSONObject json = sparepart.sparepartToJson();
+						JSONObject finalJson = new JSONObject().put("spareparts", json);
+						request.postRequest(HttpConst.Request.UPDATE_SPAREPARTS, finalJson);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (!(resultCode == Activity.RESULT_OK)) {
+			return;
+		}
+		String localUrl = "";
+		if (requestCode == LoadImageManager.CHOOSE_IMAGE && data != null) {
+
+			Uri uri = data.getData();
+			String url = LoadImageManager.uriToUrl(getContext(), uri);
+			localUrl = url;
+		} else if (requestCode == LoadImageManager.IMAGE_CAPTURE) {
+			File picture = new File(PickImageUploadDialog.getImagePath());
+			if (picture.length() > 0) {
+				localUrl = picture.getAbsolutePath();
+			} else {
+				localUrl = "";
+				picture.delete();
+			}
+		}
+		if (!localUrl.equals("")) {
+			LoadImageManager.addImage(getContext(), localUrl, (ViewGroup)findViewById(R.id.add_image).getParent());
+			uploadImage(localUrl);
+		}
+
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	private void uploadImage(final String url) {
+		final File sdDir = new File(Environment.getExternalStorageDirectory(), "Facility/image/temp");
+		if (!sdDir.exists()) {
+			sdDir.mkdirs();
+		}
+		File image = new File(sdDir, "temp.png");
+		FileOutputStream fOut;
+		try {
+			fOut = new FileOutputStream(image);
+
+			Bitmap bitmap = BitmapManager.compressImage(url);
+			boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+
+			image = new File(sdDir, "temp.png");
+			fOut.flush();
+			fOut.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				httpFlag = HttpConst.Request.UPLOAD_IMAGE;
+				HttpRequest httpRequest = new HttpRequest(SparepartAddPage.this);
+				httpRequest.uploadImage(HttpConst.Request.UPLOAD_IMAGE, sdDir+"/temp.png");
+			}
+		}).start();
+	}
+
+	@Override
+	public void callback(final String data) {
+		LogUtils.d(data);
+		CustomDialog.dismissDialog();
+		mHandler.post(new Runnable() {
+			public void run() {
+				if (data == null) {
+					ToastUtils.show(getContext(), "请求服务器失败");
+					return;
+				}
+				JSONObject json;
+				try {
+					json = new JSONObject(data);
+					final String msg = (String) json.get("errMsg");
+					if (json.get("errCode").equals(0)) {
+						if (httpFlag.equals(HttpConst.Request.UPLOAD_IMAGE)) {
+								if (imageId == null) {
+									imageId = new StringBuilder();
+									imageId.append(json.get("image_id")); 
+								} else {
+									imageId.append("," + json.get("image_id")); 
+								}
+								LinearLayout parent = (LinearLayout) findViewById(R.id.add_image).getParent();
+								int childCount = parent.getChildCount();
+								Utils.saveImage((String) parent.getChildAt(childCount - 1).getTag(),
+										String.valueOf(json.get("image_id")));
+							/*} else {
+								ToastUtils.show(getContext(), msg);
+							}*/
+						} else if (httpFlag.equals(HttpConst.Request.ADD_SPAREPARTS)
+								|| httpFlag.equals(HttpConst.Request.UPDATE_SPAREPARTS)) {
+	//						if (json.get("errCode").equals(0)) {
+								Intent intent = new Intent();
+								Bundle bundle = new Bundle();
+								mSparepart.setId(json.getString(HttpConst.Sparepart.ID));
+								bundle.putSerializable(SPAREPART_DETAIL, mSparepart);
+								intent.putExtras(bundle);
+								((Activity) getContext()).setResult(Activity.RESULT_OK, intent);
+								finish();
+	//						} else {
+	//							ToastUtils.show(getContext(), msg);
+	//						}
+						} else if (httpFlag.equals(HttpConst.Request.DOWNLOAD_IMAGE)) {
+							File image = new File(Environment.getExternalStorageDirectory(), "Facility/image/"+json.getString("imageId")+".png");
+							LoadImageManager.addImage(getContext(), image.toString(), (ViewGroup)findViewById(R.id.add_image).getParent());
+						}
+					}else {
+						ToastUtils.show(getContext(), msg);
+					}
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	@Override
+	public void result(Object o) {
+		((TextView) findViewById(R.id.type)).setText((String) o);
+	}
+
+}

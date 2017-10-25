@@ -1,0 +1,206 @@
+package com.kwaijian.facility.OldSource.pageview;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Environment;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.DataCenter.Home.obj.Data;
+import com.kwaijian.facility.DataCenter.Home.obj.Repair;
+import com.kwaijian.facility.OldSource.tools.LoadImageManager;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.OldSource.widget.AddImageDrawable;
+import com.kwaijian.facility.OldSource.widget.CustomDialog;
+import com.kwaijian.facility.OldSource.widget.PickImageUploadDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+
+public class RepairHistoryDetailPage extends Page implements RequestCallback {
+    private Repair order;
+    private com.kwaijian.facility.DataCenter.Home.obj.Data mData;
+    private String httpFlag;
+    private Handler mHandler;
+    private StringBuilder imageId;
+
+    public RepairHistoryDetailPage(Context context) {
+        super(context);
+
+        mData = Data.getInstence().getInstence();
+        mHandler = new Handler();
+        setContentView(R.layout.page_repair_detail_info);
+        ((TextView) findViewById(R.id.title)).setText("历史工单详情");
+        findViewById(R.id.save).setVisibility(View.GONE);
+        findViewById(R.id.get_report).setVisibility(View.GONE);
+        initView(context);
+
+        disableViewAction(this);
+
+    }
+
+    private void disableViewAction(ViewGroup vg) {
+        for (int i = 0; i < vg.getChildCount(); i++) {
+            View v = vg.getChildAt(i);
+            if (v instanceof ViewGroup) {
+                disableViewAction((ViewGroup) v);
+            } else {
+                v.setEnabled(false);
+            }
+        }
+    }
+
+    private void setViewText(JSONObject json) throws JSONException {
+        order = new Repair();
+        order.setData(json.getJSONObject("repair"));
+        if (order.getApplyCompany() != null) {
+            ((TextView) findViewById(R.id.company)).setText(order.getApplyCompany().getName());
+        }
+        if (order.getFinalCompany() != null) {
+            ((TextView) findViewById(R.id.final_company)).setText(order.getFinalCompany().getName());
+        }
+        ((TextView) findViewById(R.id.instock_time)).setText(Utils.formatTime(order.getInstockTime()));
+        ((TextView) findViewById(R.id.r_brand)).setText(order.getBrand());
+        ((TextView) findViewById(R.id.no)).setText(order.getON());
+        ((TextView) findViewById(R.id.sn)).setText(order.getSN());
+        ((TextView) findViewById(R.id.fault_desc)).setText(order.getFaultDesc());
+
+        if (!TextUtils.isEmpty(order.getCheckTime()) && !order.getCheckTime().equals("0")) {
+            ((TextView) findViewById(R.id.check_time)).setText(Utils.formatTime(order.getCheckTime()));
+        }
+        if (!TextUtils.isEmpty(order.getRepairTime()) && !order.getRepairTime().equals("0")) {
+            ((TextView) findViewById(R.id.repair_time)).setText(Utils.formatTime(order.getRepairTime()));
+        }
+        if (!TextUtils.isEmpty(order.getTestTime()) && !order.getTestTime().equals("0")) {
+            ((TextView) findViewById(R.id.test_time)).setText(Utils.formatTime(order.getTestTime()));
+        }
+        if (!TextUtils.isEmpty(order.getRepairDuration()) && !order.getRepairDuration().equals("0.0")) {
+            ((TextView) findViewById(R.id.service_time)).setText(order.getRepairDuration() + "小时");
+        }
+
+        ((EditText) findViewById(R.id.fault_reason)).setText(order.getFaultReason());
+        ((EditText) findViewById(R.id.fault_symptom)).setText(order.getFaultSymptom());
+        ((EditText) findViewById(R.id.fault_process)).setText(order.getFaultProcess());
+        ((EditText) findViewById(R.id.fault_completion)).setText(order.getFaultCompletion());
+//        ((TextView) findViewById(R.id.remark)).setText(order.getRemark());
+        ((EditText) findViewById(R.id.record)).setText(order.getRecord());
+        String[] mImageId = order.getFaultImage();
+        File sdDir = new File(Environment.getExternalStorageDirectory(), "Facility/image/");
+        if (!sdDir.exists()) {
+            sdDir.mkdirs();
+        }
+        if (mImageId == null) {
+            return;
+        }
+        for (int i = 0; i < mImageId.length; i++) {
+            if (TextUtils.isEmpty(mImageId[i])) {
+                continue;
+            }
+            if (imageId == null) {
+                imageId = new StringBuilder();
+                imageId.append(mImageId[i]);
+            } else {
+                imageId.append("," + mImageId[i]);
+            }
+            final File image = new File(sdDir, mImageId[i] + ".png");
+            if (image.exists()) {
+                LoadImageManager.addImage(getContext(), image.toString(), (ViewGroup) findViewById(R.id.add_image).getParent());
+            } else {
+                CustomDialog.createLoadingDialog(getContext());
+                httpFlag = HttpConst.Request.DOWNLOAD_IMAGE;
+                final String id = mImageId[i];
+                new Thread(new Runnable() {
+                    public void run() {
+                        HttpRequest request = new HttpRequest(RepairHistoryDetailPage.this);
+                        request.downloadImage(id, image);
+                    }
+                }).start();
+
+            }
+        }
+    }
+
+    @SuppressLint("NewApi")
+    public void initView(final Context context) {
+        ((TextView) findViewById(R.id.title)).setText("维修详情");
+        ((TextView) findViewById(R.id.images)).setText("故障图片");
+        findViewById(R.id.save).setVisibility(View.GONE);
+        findViewById(R.id.add_image).setVisibility(View.GONE);
+        findViewById(R.id.get_report).setOnClickListener(this);
+        findViewById(R.id.check_time).setOnClickListener(this);
+        findViewById(R.id.repair_time).setOnClickListener(this);
+        findViewById(R.id.test_time).setOnClickListener(this);
+
+        ImageView image = (ImageView) findViewById(R.id.add_image);
+        image.setImageDrawable(new AddImageDrawable());
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new PickImageUploadDialog(getContext()).show();
+            }
+        });
+
+
+        final String repairId = getBundle().getString(RepairDetailPage.ORDER_ID);
+        for (int i = 0; i < mData.getHistoryRepairlist().size(); i++) {
+            Repair r = mData.getHistoryRepairlist().get(i);
+            if (r.getOrderNumber().equals(repairId)) {
+                order = r;
+                break;
+            }
+        }
+        new Thread(new Runnable() {
+            public void run() {
+                httpFlag = HttpConst.Request.GET_REPAIR_DETAIL;
+                HttpRequest request = new HttpRequest(RepairHistoryDetailPage.this);
+                try {
+                    JSONObject json = new JSONObject().put("repair_id", order.getId());
+                    request.postRequest(HttpConst.Request.GET_REPAIR_DETAIL, json);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public void callback(final String data) {
+        LogUtils.d(data);
+        mHandler.post(new Runnable() {
+            public void run() {
+                CustomDialog.dismissDialog();
+                if (data == null) {
+                    ToastUtils.show(getContext(), "请求服务器失败");
+                    return;
+                }
+                try {
+                    JSONObject json = new JSONObject(data);
+                    if (json.get("errCode").equals(0)) {
+                        if (httpFlag.equals(HttpConst.Request.GET_REPAIR_DETAIL)) {
+                            setViewText(json);
+                        }
+                    } else {
+                        ToastUtils.show(getContext(), (String) json.get("errMsg"));
+                    }
+                } catch (Exception e) {
+
+                }
+            }
+        });
+
+    }
+
+}

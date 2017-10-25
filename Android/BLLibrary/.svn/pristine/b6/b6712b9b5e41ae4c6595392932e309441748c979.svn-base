@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/images"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/order_detail_item_padding"
+        android:text="设备图片"
+        android:textColor="@color/order_detail_value_color"
+        android:textSize="@dimen/order_detail_value_size" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:padding="10dp"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:id="@+id/image_group"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:id="@+id/add_image"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:background="@drawable/selector"
+                android:padding="10dp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+<include layout="@layout/line"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/order_detail_view_color" />
+<include layout="@layout/line"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="故障描述"
+        android:textColor="@color/order_detail_value_color"
+        android:textSize="@dimen/order_detail_value_size" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <EditText
+            android:id="@+id/fault_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffffff"
+            android:editable="false"
+            android:focusable="false"
+            android:gravity="top"
+            android:hint="暂无故障描述"
+            android:minHeight="60dp"
+            android:padding="5dp"
+            android:textColor="@color/order_detail_name_color"
+            android:textColorHint="@color/order_detail_name_color"
+            android:textSize="@dimen/order_detail_input_size" />
+    </LinearLayout>
+<include layout="@layout/line"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/order_detail_view_color" />
+    <include layout="@layout/line"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="工单备注信息"
+        android:textColor="@color/order_detail_value_color"
+        android:textSize="@dimen/order_detail_value_size" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <TextView
+            android:id="@+id/remark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffffff"
+            android:gravity="top"
+            android:hint="暂无备注信息"
+            android:minHeight="60dp"
+            android:padding="2dp"
+            android:textColor="@color/order_detail_name_color"
+            android:textColorHint="@color/order_detail_name_color"
+            android:textSize="@dimen/order_detail_input_size" />
+    </LinearLayout>
+
+</LinearLayout>

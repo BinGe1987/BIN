@@ -1,0 +1,470 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffffffff"
+        android:orientation="vertical" >
+
+        <include layout="@layout/title" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_title_padding"
+                    android:text="申请服务客户"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <include layout="@layout/request_servie_item" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:text="最终客户信息"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <include layout="@layout/final_user_item" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:text="设备信息"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <include layout="@layout/facility_item" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:text="故障图片及描述"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <include layout="@layout/fault_information" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:text="处理过程"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="故障现象"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="@dimen/order_detail_value_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <EditText
+                        android:id="@+id/fault_symptom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffffff"
+                        android:gravity="top"
+                        android:hint="输入故障现象...."
+                        android:minHeight="60dp"
+                        android:padding="5dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="@dimen/order_detail_input_size" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="故障原因"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="@dimen/order_detail_value_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <EditText
+                        android:id="@+id/fault_reason"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffffff"
+                        android:gravity="top"
+                        android:hint="输入故障原因...."
+                        android:minHeight="60dp"
+                        android:padding="5dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="@dimen/order_detail_input_size" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="处理过程"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="@dimen/order_detail_value_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <EditText
+                        android:id="@+id/fault_process"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffffff"
+                        android:gravity="top"
+                        android:hint="输入处理过程...."
+                        android:minHeight="60dp"
+                        android:padding="5dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="@dimen/order_detail_input_size" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="完成情况"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="@dimen/order_detail_value_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <EditText
+                        android:id="@+id/fault_completion"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffffff"
+                        android:gravity="top"
+                        android:hint="输入完成情况...."
+                        android:minHeight="60dp"
+                        android:padding="2dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="@dimen/order_detail_input_size" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="10dp"
+                    android:text="工程师备注信息"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="@dimen/order_detail_value_size" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:orientation="vertical"
+                    android:padding="10dp" >
+
+                    <EditText
+                        android:id="@+id/record"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffffff"
+                        android:gravity="top"
+                        android:hint="请输入您的备注信息"
+                        android:minHeight="60dp"
+                        android:padding="2dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="@dimen/order_detail_input_size" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/order_detail_item_padding" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="出发时间"
+                        android:textColor="@color/order_detail_title_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/depart_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@drawable/text_selector"
+                        android:drawablePadding="6dp"
+                        android:drawableRight="@mipmap/icon_right"
+                        android:gravity="right" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/order_detail_item_padding" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="到达时间"
+                        android:textColor="@color/order_detail_title_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/arrive_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@drawable/text_selector"
+                        android:drawablePadding="6dp"
+                        android:drawableRight="@mipmap/icon_right"
+                        android:gravity="right" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="@dimen/order_detail_item_padding" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="离开时间"
+                        android:textColor="@color/order_detail_title_color"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/leave_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textColor="@drawable/text_selector"
+                        android:drawablePadding="6dp"
+                        android:drawableRight="@mipmap/icon_right"
+                        android:gravity="right" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/order_detail_item_padding"
+                        android:layout_weight="1"
+                        android:text="工作时长"
+                        android:textColor="@color/order_detail_title_color"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/service_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="16dp"
+                        android:background="@drawable/facility_back_rect"
+                        android:digits="1234567890."
+                        android:gravity="center"
+                        android:hint="请输入工作时长"
+                        android:paddingBottom="3dp"
+                        android:paddingLeft="10dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="3dp"
+                        android:textColor="@color/order_detail_name_color"
+                        android:textColorHint="@color/order_detail_name_color"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@color/order_detail_view_color"
+                    android:gravity="bottom"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:text="更换备件"
+                    android:textColor="@color/order_detail_title_color"
+                    android:textSize="16sp" />
+
+                <include layout="@layout/line" />
+
+                <LinearLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/order_detail_item_padding" >
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/add_company_spareparts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:background="@drawable/selector2"
+                    android:text="添加"
+                    android:textColor="@color/main_click_text_color" />
+
+                <include layout="@layout/line" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:background="@color/order_detail_view_color" />
+
+                <include layout="@layout/line" />
+
+                <TextView
+                    android:id="@+id/get_report"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/order_button_back"
+                    android:clickable="true"
+                    android:gravity="center"
+                    android:padding="15dp"
+                    android:text="保存"
+                    android:textColor="@color/main_click_text_color"
+                    android:textSize="18sp" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

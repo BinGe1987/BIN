@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.kwaijian.facility.widget.ScorllTextView
+        android:id="@+id/horizon_view"
+        android:layout_width="match_parent"
+        android:fadingEdge="none"
+        android:layout_height="wrap_content"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/item"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="item" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:background="#ffff0000"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="删除"
+                android:textColor="#ffffffff"
+                 />
+        </LinearLayout>
+    </com.kwaijian.facility.widget.ScorllTextView>
+
+</LinearLayout>

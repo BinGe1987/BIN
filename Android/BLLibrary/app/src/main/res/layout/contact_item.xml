@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/selector"
+    android:clickable="true"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/order_detail_item_padding"
+            android:text="姓  名"
+            android:textColor="@color/order_detail_name_color"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:padding="5dp"
+            android:text="name"
+            android:textColor="@color/order_detail_value_color"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/contact_tel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:clickable="true"
+            android:background="@drawable/selector"
+            android:padding="5dp"
+            android:text="Tel"
+            android:textColor="@color/contact_text_detail_color"
+            android:textSize="14sp" />
+       
+    </LinearLayout>
+
+    <include layout="@layout/line" />
+
+</LinearLayout>

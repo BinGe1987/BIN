@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/apply_user"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
+    android:layout_marginBottom="5dp"
+    android:background="@color/color_w"
+    android:elevation="1dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/color_1"
+        android:elevation="1dp"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:text="申请服务客户"
+        android:textColor="@color/color_w"
+        android:textSize="16sp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.SingleLineEditView
+        android:id="@+id/apply_company"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.SingleLineEditView
+        android:id="@+id/apply_contact"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.SingleLineEditView
+        android:id="@+id/apply_contact_tel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.SingleLineEditView
+        android:id="@+id/apply_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</LinearLayout>

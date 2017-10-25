@@ -1,0 +1,328 @@
+package com.kwaijian.facility.UI.Home.Server.Detail;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import com.kwaijian.facility.DataCenter.BaseClasses.HTData;
+import com.kwaijian.facility.DataCenter.Config.DataType;
+import com.kwaijian.facility.DataCenter.Config.Operations;
+import com.kwaijian.facility.DataCenter.DataCenter;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Company;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Contacts;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Facility;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Order;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Spare;
+import com.kwaijian.facility.DataCenter.Home.HomeData;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.tools.Density;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.UI.BaseClass.Activity.HTActivity;
+import com.kwaijian.facility.UI.BaseClass.Views.HTProgress;
+import com.kwaijian.facility.UI.BaseClass.Views.TitleView;
+import com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView;
+import com.kwaijian.facility.UI.BaseClass.Widget.SingleLineEditView;
+import com.kwaijian.facility.UI.BaseClass.Widget.TimePickView;
+import com.kwaijian.facility.Utils.Log.LogUtils;
+import com.kwaijian.facility.Utils.Log.ToastUtils;
+import com.kwaijian.facility.Utils.UI.ActivityUtils;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by BinGe on 2017/10/20.
+ */
+
+public class ServerDetailActivity extends HTActivity implements View.OnClickListener {
+
+    public static final int GET_SPARE_LIST = 14;
+    public static final int GET_FACILITY_LIST = 15;
+
+    private Order order;
+
+    private ViewGroup imageGroup, spareGroup;
+    private SingleLineEditView applyCompany, applyContact, applyContactTel, applyTime;
+    private SingleLineEditView finalCompany, finalContact, finalContactTel, finalAddress, finalContactTime, finalComfirmTime;
+    private MultiLineEditView faultDesc, faultRemark;
+    private MultiLineEditView faultSymptom, faultReason, faultProcess, faultRecord, faultComplete;
+    private TimePickView timeDepart, timeArrive, timeLeave;
+    private TextView serverTime, facilityView;
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_server_detail);
+        initView();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ScrollView sv = (ScrollView) findViewById(R.id.scrollView);
+                sv.smoothScrollTo(0, 100000);
+            }
+        }, 1000);
+
+
+    }
+
+    public void initView() {
+        String id = getIntent().getStringExtra("id");
+        id = id == null ? "86" : id;
+        HomeData homeData = (HomeData) DataCenter.get().getData(DataType.HomeData);
+        order = homeData.serverData.findOrderById(id);
+
+        TitleView titleView = (TitleView) findViewById(R.id.title);
+        titleView.setUnit(TitleView.Unit.TEXT | TitleView.Unit.BACK | TitleView.Unit.SURE);
+        if (order == null) {
+            titleView.setTitle("服务工单");
+        } else {
+            titleView.setTitle(order.getFaultDesc());
+        }
+        titleView.setSureOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateOrder();
+            }
+        });
+
+        applyCompany = (SingleLineEditView) findViewById(R.id.apply_company);
+        applyContact = (SingleLineEditView) findViewById(R.id.apply_contact);
+        applyContactTel = (SingleLineEditView) findViewById(R.id.apply_contact_tel);
+        applyTime = (SingleLineEditView) findViewById(R.id.apply_time);
+
+        finalCompany = (SingleLineEditView) findViewById(R.id.final_company);
+        finalContact = (SingleLineEditView) findViewById(R.id.final_contact);
+        finalContactTel = (SingleLineEditView) findViewById(R.id.final_contact_tel);
+        finalAddress = (SingleLineEditView) findViewById(R.id.final_address);
+        finalContactTime = (SingleLineEditView) findViewById(R.id.final_contact_time);
+        finalComfirmTime = (SingleLineEditView) findViewById(R.id.final_confirm_time);
+
+        faultDesc = (MultiLineEditView) findViewById(R.id.edit_fault_desc);
+        faultRemark = (MultiLineEditView) findViewById(R.id.edit_fault_remark);
+
+        faultSymptom = (MultiLineEditView) findViewById(R.id.edit_fault_symptom);
+        faultSymptom.setEditable(true);
+        faultReason = (MultiLineEditView) findViewById(R.id.edit_fault_reason);
+        faultReason.setEditable(true);
+        faultProcess = (MultiLineEditView) findViewById(R.id.edit_fault_process);
+        faultProcess.setEditable(true);
+        faultRecord = (MultiLineEditView) findViewById(R.id.edit_fault_record);
+        faultRecord.setEditable(true);
+        faultComplete = (MultiLineEditView) findViewById(R.id.edit_fault_complete);
+        faultComplete.setEditable(true);
+
+        timeDepart = (TimePickView) findViewById(R.id.pick_time_depart);
+        timeArrive = (TimePickView) findViewById(R.id.pick_time_arrive);
+        timeLeave = (TimePickView) findViewById(R.id.pick_time_leave);
+
+        serverTime = (TextView) findViewById(R.id.service_time);
+        facilityView = (TextView) findViewById(R.id.device_info);
+
+        findViewById(R.id.facility).setOnClickListener(this);
+        findViewById(R.id.add_company_spare).setOnClickListener(this);
+
+        imageGroup = (ViewGroup) findViewById(R.id.image_group);
+        spareGroup = (ViewGroup) findViewById(R.id.spare_container);
+
+        String params = "{\"service_id\":" + id + "}";
+        DataCenter.get().perform(Operations.Home.Server.ServerDetail, params,
+                new DataCenter.Callback() {
+                    @Override
+                    public void onCallback(String operation, HTData data) {
+                        order = (Order) data;
+                        updateUI(order);
+                    }
+                });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == GET_FACILITY_LIST) {
+            Facility facility = (Facility) data.getSerializableExtra("facility");
+            TextView textView = (TextView) findViewById(R.id.device_info);
+            textView.setText(facility.getName());
+            spareGroup.removeAllViews();
+            order.setFacility(facility);
+            order.setFacilityId(facility.getId());
+        } else if (requestCode == GET_SPARE_LIST) {
+            Spare s = (Spare) data.getSerializableExtra("spare");
+            Order.OrderSpare spare = new Order.OrderSpare();
+            spare.setServiceId(order.getId());
+            spare.setOldModel(s.getModel());
+            spare.setOldId(s.getId());
+            spare.setOldSN(s.getSN());
+            addSpare(spare);
+            order.addOrderSpare(spare);
+
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ScrollView sv = (ScrollView) findViewById(R.id.scrollView);
+                    sv.smoothScrollTo(0, 100000);
+                }
+            }, 200);
+        }
+    }
+
+    private View addSpare(final Order.OrderSpare spare) {
+
+        final SpareReplaceView spareReplaceView = new SpareReplaceView(this);
+        spareReplaceView.setOrderSpare(spare);
+        spareGroup.addView(spareReplaceView);
+        spareReplaceView.setCloseClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spareGroup.removeView(spareReplaceView);
+                order.removeOrderSpare(spare);
+            }
+        });
+        return spareReplaceView;
+    }
+
+
+    private void updateUI(Order order) {
+        Company applyCompany = order.getApplyCompany();
+        this.applyCompany.setName("企业");
+        this.applyCompany.setText(applyCompany.getName());
+        Contacts applyLinkman = order.getApplyLinkman();
+        this.applyContact.setName("联系人");
+        this.applyContact.setText(applyLinkman.getName());
+        this.applyContactTel.setName("联系电话");
+        this.applyContactTel.setText(applyLinkman.getMobile());
+        this.applyTime.setName("申请时间");
+        this.applyTime.setText(Utils.formatTime(order.getApplyTime()));
+
+        Company finalCompany = order.getFinalCompany();
+        this.finalCompany.setName("企业");
+        this.finalCompany.setText(finalCompany.getName());
+        Contacts finalLinkman = order.getFinalLinkman();
+        this.finalContact.setName("联系人");
+        this.finalContact.setText(finalLinkman.getName());
+        this.finalContactTel.setName("联系电话");
+        this.finalContactTel.setText(finalLinkman.getMobile());
+        this.finalAddress.setName("联系地址");
+        this.finalAddress.setText(finalLinkman.getAddress());
+        this.finalContactTime.setName("联系时间");
+        this.finalContactTime.setText(Utils.formatTime(order.getContactTime()));
+        this.finalComfirmTime.setName("确认时间");
+        this.finalComfirmTime.setText(Utils.formatTime(order.getConfirmTime()));
+
+        if (order.getFaultImgeList().size() > 0) {
+            findViewById(R.id.image_empty).setVisibility(View.GONE);
+            findViewById(R.id.image_content).setVisibility(View.VISIBLE);
+            for (String id : order.getFaultImgeList()) {
+                String url = HttpConst.Request.IMAGE_PATH + id;
+                int padding = Density.dip2px(10);
+                ImageView image = new ImageView(this);
+                image.setPadding(padding, padding, padding, padding);
+                Picasso.with(this).load(url).centerCrop().resize(300, 300).into(image);
+                imageGroup.addView(image);
+            }
+        } else {
+            findViewById(R.id.image_empty).setVisibility(View.VISIBLE);
+            findViewById(R.id.image_content).setVisibility(View.GONE);
+        }
+        faultDesc.setContent("故障描述：", TextUtils.isEmpty(order.getFaultDesc()) ? "无" : order.getFaultDesc());
+        faultRemark.setContent("工单备注信息：", TextUtils.isEmpty(order.getRemark()) ? "无" : order.getRemark());
+
+        faultSymptom.setContent("故障现象：", order.getFaultSymptom(), "请输入故障现象");
+        faultReason.setContent("故障原因：", order.getFaultReason(), "请输入故障原因");
+        faultProcess.setContent("处理过程：", order.getFaultProcess(), "请输入处理过程");
+        faultRecord.setContent("工程师备注信息：", order.getRecord(), "请输入备注信息");
+        faultComplete.setContent("完成情况", order.getFaultCompletion(), "请输入完成情况");
+
+        timeDepart.setContent("出发时间", Utils.formatTime(order.getDepartTime()));
+        timeArrive.setContent("到达时间", Utils.formatTime(order.getArriveTime()));
+        timeLeave.setContent("离开时间", Utils.formatTime(order.getLeaveTime()));
+        serverTime.setText(order.getServiceHour() <= 0 ? "" : order.getServiceHour() + "");
+
+        Facility facility = order.getFacility();
+        facilityView.setText(facility == null ? "" : facility.getName());
+
+        List<Order.OrderSpare> spareList = order.getSpareparts();
+        if (spareList != null) {
+            for (int i = 0; i < spareList.size(); i++) {
+                Order.OrderSpare spare = spareList.get(i);
+                addSpare(spare);
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.facility:
+                Intent intent = new Intent(this, FinalFacilityActivity.class);
+                Company company = order.getFinalCompany();
+                intent.putExtra("company", company);
+                ActivityUtils.pushActivityForResult(this, intent, GET_FACILITY_LIST);
+                break;
+
+            case R.id.add_company_spare:
+                chooseSpare();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+    private void chooseSpare() {
+        Facility facility = order.getFacility();
+        if (facility == null) {
+            ToastUtils.show(this, "请先选择设备");
+        } else {
+            Intent intent = new Intent(this, SpareSelectActivity.class);
+            intent.putExtra("company", order.getFinalCompany());
+            intent.putExtra("facility", facility);
+            ActivityUtils.pushActivityForResult(this, intent, GET_SPARE_LIST);
+        }
+    }
+
+    private void updateOrder() {
+        order.setFaultSymptom(faultSymptom.getText());
+        order.setFaultReason(faultReason.getText());
+        order.setFaultProcess(faultProcess.getText());
+        order.setFaultCompletion(faultComplete.getText());
+        order.setRecord(faultRecord.getText());
+
+        order.setDepartTime(timeDepart.getTimeString());
+        order.setArriveTime(timeArrive.getTimeString() + "");
+        order.setLeaveTime(timeLeave.getTimeString() + "");
+        order.setServiceTime(serverTime.getText().toString());
+
+        String params = "{\"service\":" + order.orderToJson() + "}";
+        HTProgress.create(this, "update_order").setType(HTProgress.TYPE.LOADING).show();
+        DataCenter.get().perform(Operations.Home.Server.UpdateServer, params, new DataCenter.Callback() {
+            @Override
+            public void onCallback(String operation, HTData data) {
+                HTProgress.dismissAll();
+                if (data.isDataNormal()) {
+                    updateUI(order);
+                    ToastUtils.show(ServerDetailActivity.this, "保存成功");
+                } else {
+                    ToastUtils.show(ServerDetailActivity.this, "保存失败，请重试！");
+                }
+            }
+        });
+
+    }
+
+}

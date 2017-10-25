@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/company_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/final_serviced_company"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="企    业"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <TextView
+                android:id="@+id/final_company"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:padding="@dimen/order_detail_item_padding"
+                android:textColor="@color/order_detail_value_color"
+                android:textSize="@dimen/order_detail_value_size" />
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="联系人"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <LinearLayout
+                android:id="@+id/final_serviced_contact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/final_contact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:padding="@dimen/order_detail_item_padding"
+                    android:textColor="@color/order_detail_value_color"
+                    android:textSize="14sp" />
+
+                <!-- <TextView
+                    android:id="@+id/final_contact_tel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:background="@drawable/selector"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:textColor="@color/contact_text_detail_color"
+                    android:textSize="14sp" /> -->
+            </LinearLayout>
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="联系电话"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <TextView
+                android:id="@+id/final_contact_tel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding"
+                android:textColor="@color/order_detail_value_color"
+                android:textSize="@dimen/order_detail_value_size" />
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="地    址"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <TextView
+                android:id="@+id/final_contact_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding"
+                android:textColor="@color/order_detail_value_color"
+                android:textSize="@dimen/order_detail_value_size" />
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="联系时间"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <TextView
+                android:id="@+id/contact_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding" />
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="80dp"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/order_detail_item_padding"
+                android:text="确认时间"
+                android:textColor="@color/order_detail_name_color"
+                android:textSize="@dimen/order_detail_value_size" />
+
+            <TextView
+                android:id="@+id/confirm_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" 
+                android:padding="@dimen/order_detail_item_padding"/>
+        </LinearLayout>
+
+        <include layout="@layout/line" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:layout_marginTop="5dp"
+    android:background="@color/color_w"
+    android:elevation="1dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/color_1"
+        android:elevation="1dp"
+        android:gravity="bottom"
+        android:padding="10dp"
+        android:text="处理过程"
+        android:textColor="@color/color_w"
+        android:textSize="16sp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_symptom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_reason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_process"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_complete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+    <com.kwaijian.facility.UI.BaseClass.Widget.MultiLineEditView
+        android:id="@+id/edit_fault_record"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_w"
+        android:elevation="0.5dp" />
+
+    <include layout="@layout/line" />
+
+</LinearLayout>

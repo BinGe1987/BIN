@@ -1,0 +1,53 @@
+package com.kwaijian.facility.DataCenter.Config;
+
+/**
+ * Created by BinGe on 2017/9/11.
+ * DataCenter 对UI开放的操作，通过以下常量对应相应的操作
+ */
+
+public class Operations {
+
+    /**
+     * 登录模块的所有操作
+     */
+    public static class Login {
+        public final static String LoginWithPwd = "LoginWithPwd";//密码登录
+        public final static String LoginWithAuto = "LoginWithAuto";//自动登录
+        public final static String LoginOut = "LoginOut";//登出
+    }
+
+    /**
+     * 用户信息
+     */
+    public static class User {
+        public static final String ClearData = "ClearData";
+    }
+
+    /**
+     * 首页的操作
+     */
+    public static class Home {
+
+        public static final String ClearData = "ClearData";
+
+        public static class Server {
+            public static final String RefreshServerList = "getServiceList";
+            public static final String RefreshServerHistoryList = "getServiceHistoryList";
+            public static final String FinishServer = "finishService";
+            public static final String ServerDetail = "getServiceDetail";
+            public static final String UpdateServer = "updateService";
+            public static final String CancelSERVICE = "cancelService";
+            public static final String RefreshFacilityList = "getFacilityList";
+            public static final String RefreshSpareList = "getSparepartsList";
+            public static final String AddSpare = "addSpareparts";
+            public static final String UpdateSpare = "updateSpareparts";
+            public static final String DeleteSpare = "delSpareparts";
+        }
+
+
+        public final static String RefreshRepairList = "RefreshRepairList";//刷新维修列表
+        public final static String RefreshRepairHistoryList = "RefreshRepairHistoryList";//刷新维修列表
+        public final static String RefreshFacilityList = "RefreshFacilityList";//刷新设备列表
+    }
+
+}

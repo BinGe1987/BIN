@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="permissionsHelper-0.1.8">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.android/build-cache/7704e61af57feaa28cf151391a3737dcc3a3a775/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/7704e61af57feaa28cf151391a3737dcc3a3a775/output/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.didikee/permissionsHelper/0.1.8/f3e673b029db382acc36a4deb23d02ae0df018fb/permissionsHelper-0.1.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,228 @@
+package com.kwaijian.facility.OldSource.pageview;
+
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.kwaijian.facility.UI.Home.Old.FacilityListAdapter;
+import com.kwaijian.facility.UI.Home.Old.PageActivity;
+import com.kwaijian.facility.R;
+import com.kwaijian.facility.OldSource.http.HttpConst;
+import com.kwaijian.facility.OldSource.http.HttpRequest;
+import com.kwaijian.facility.OldSource.http.RequestCallback;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Data;
+import com.kwaijian.facility.DataCenter.Home.DataObj.Facility;
+import com.kwaijian.facility.OldSource.tools.LogUtils;
+import com.kwaijian.facility.OldSource.tools.ToastUtils;
+import com.kwaijian.facility.OldSource.tools.Utils;
+import com.kwaijian.facility.OldSource.widget.CustomDialog;
+import com.kwaijian.facility.OldSource.widget.CustomDialog.ReturnResults;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.List;
+
+public class FacilityListPage extends Page implements RequestCallback{
+	public static final int ADD_FACILITY = 8;
+	public static final int ADD_COMPANY_FACILITY = 9;
+	public static final int SEARCH_FACILITY = 10;
+	public static final String COMPANY_ID = "companyId";
+	private Context context;
+	private Handler mHandler;
+	private String httpFlag;
+
+	public FacilityListPage(Context context) {
+		super(context);
+		this.context = context;
+		mHandler = new Handler();
+		setContentView(R.layout.page_facility_list);
+		initView();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		getFacilities();
+		LogUtils.d("get facility list.");
+	}
+
+	@SuppressLint("NewApi")
+	public void initView() {
+		((TextView)findViewById(R.id.title)).setText(getContext().getString(R.string.facility_list));
+		if (getBundle()==null) {
+			findViewById(R.id.back).setVisibility(View.GONE);
+		}
+		
+		findViewById(R.id.search).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PageActivity.openPageForResult(context, SearchPage.class, SEARCH_FACILITY); 
+			}
+		});
+		
+		findViewById(R.id.right_title_layout).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (getBundle() == null) {
+					PageActivity.openPageForResult(context, FacilityAddPage.class, ADD_FACILITY);
+				}else{
+					PageActivity.openPageForResult(context, CompanyFacilityAddPage.class, getBundle(), ADD_COMPANY_FACILITY); 
+				}
+			}
+		});
+		
+		findViewById(R.id.search_device).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				PageActivity.openPageForResult(context, SearchPage.class, SEARCH_FACILITY); 
+			}
+		});
+
+		if (Utils.isNetWork(context)) {
+			getFacilities();
+//			CustomDialog.createLoadingDialog(context).show();
+		} else {
+			ToastUtils.show(context, "网络错误");
+		}
+		final ListView facilities = ((ListView)findViewById(R.id.list));
+		facilities.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
+				Facility facility = (Facility) facilities.getAdapter().getItem(pos);
+				Bundle bundle = new Bundle();
+				if (getBundle() == null) {											//onResult中无需判断resultCode,随便传个resultCode
+					bundle.putSerializable(FacilityAddPage.FACILITY_DETAIL, facility);
+					PageActivity.openPageForResult(context, FacilityAddPage.class, bundle, ADD_FACILITY);	
+				}else {
+//					bundle.putString(COMPANY_ID, getBundle().getString(COMPANY_ID));
+//					bundle.putSerializable(CompanyFacilityAddPage.FACILITY_DETAIL, facility);
+//					PageActivity.openPageForResult(context, CompanyFacilityAddPage.class, bundle, ADD_COMPANY_FACILITY);
+					Intent intent = new Intent();
+					bundle.putString(OrderDetailPage.FACILITY_ID, facility.getId());
+					bundle.putString(OrderDetailPage.FACILITY_NAME, facility.getName());
+					intent.putExtras(bundle);
+					((Activity)getContext()).setResult(Activity.RESULT_OK, intent);
+					finish();
+				}
+				
+			}
+		});
+		facilities.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1, final int pos, long arg3) {
+				CustomDialog.createChooseDialog(context, "是否删除设备", "", new ReturnResults() {
+					@Override
+					public void result(Object o) {
+						if(o.toString().equals("yes")){
+							ToastUtils.show(context, "删除成功      "+o);
+							deleteFacility(((Facility)facilities.getAdapter().getItem(pos)).getId());
+						}
+					}
+				}).show();
+				return true;
+			}
+		});
+	}
+
+	public void getFacilities() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				httpFlag = HttpConst.Request.GET_FACILITY_LIST;
+				HttpRequest request = new HttpRequest(FacilityListPage.this);
+				if (getBundle() != null) {
+					JSONObject json;
+					try {
+						json = new JSONObject().put("company_id", getBundle().getString(COMPANY_ID));
+//						request.postRequest(HttpConst.Request.GET_FACILITY_LIST, json);
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}else {
+//					request.postRequest(HttpConst.Request.GET_FACILITY_LIST);
+				}
+			}
+		}).start();
+	}
+	
+	private void deleteFacility(final String id) {
+		new Thread(new Runnable() {
+			public void run() {
+				httpFlag = HttpConst.Request.DELETE_FACILITY;
+				HttpRequest request = new HttpRequest(FacilityListPage.this);
+				JSONObject json;
+				try {
+					json = new JSONObject().put(HttpConst.Facility.ID, id);
+					request.postRequest(HttpConst.Request.DELETE_FACILITY, json);
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+	}
+	
+	@Override
+	public void callback(final String data) {
+		LogUtils.d(data);
+		CustomDialog.dismissDialog();
+		mHandler.post(new Runnable() {
+			public void run() {
+				if (data == null) {
+					ToastUtils.show(context, "请求服务器失败");
+					return;
+				}
+				try{
+					final JSONObject json = new JSONObject(data);
+					if (json.get("errCode").equals(0)) {
+						if(httpFlag.equals(HttpConst.Request.GET_FACILITY_LIST)){
+							ListView listView = (ListView) findViewById(R.id.list);
+							JSONArray jsonArray = new JSONArray();
+							String s = json.getString("list_facility");
+							if (!TextUtils.isEmpty(s) && !s.equals("null")) {
+								jsonArray = json.getJSONArray("list_facility");
+							}
+							Data.getInstence().getFacilities(jsonArray);
+							List<Facility> facilities = Data.getInstence().getmFacilitylist();
+							if (getBundle() == null) {
+								listView.setAdapter(new FacilityListAdapter(facilities, R.layout.page_facility_item));
+							}else {
+								Bundle bundle = new Bundle();
+								bundle.putString(COMPANY_ID, getBundle().getString(COMPANY_ID));
+								listView.setAdapter(new FacilityListAdapter(facilities, R.layout.company_facility_item, bundle));
+							}
+						}else if(httpFlag.equals(HttpConst.Request.DELETE_FACILITY)){
+							getFacilities();
+//							CustomDialog.createLoadingDialog(context).show();
+						}
+					}
+				}catch(Exception e){
+					LogUtils.d(e.getMessage());
+				}
+			}
+		});
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (resultCode == Activity.RESULT_OK) {
+			getFacilities();
+		}
+	}
+
+	
+}
